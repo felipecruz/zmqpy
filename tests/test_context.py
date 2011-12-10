@@ -22,12 +22,11 @@
 #-----------------------------------------------------------------------------
 
 import unittest
-import zmqpy as zmq
-
+import zmqpy
 import time
 
 from zmqpy.utils.strtypes import asbytes
-from zmqpy.tests import BaseZMQTestCase
+from __init__ import BaseZMQTestCase
 
 
 #-----------------------------------------------------------------------------
@@ -38,38 +37,38 @@ from zmqpy.tests import BaseZMQTestCase
 class TestContext(BaseZMQTestCase):
 
     def test_init(self):
-        c1 = zmq.Context()
-        self.assert_(isinstance(c1, zmq.Context))
+        c1 = zmqpy.Context()
+        self.assert_(isinstance(c1, zmqpy.Context))
         del c1
-        c2 = zmq.Context()
-        self.assert_(isinstance(c2, zmq.Context))
+        c2 = zmqpy.Context()
+        self.assert_(isinstance(c2, zmqpy.Context))
         del c2
-        c3 = zmq.Context()
-        self.assert_(isinstance(c3, zmq.Context))
+        c3 = zmqpy.Context()
+        self.assert_(isinstance(c3, zmqpy.Context))
         del c3
 
     def test_term(self):
-        c = zmq.Context()
+        c = zmqpy.Context()
         c.term()
         self.assert_(c.closed)
 
     def test_fail_init(self):
-        self.assertRaisesErrno(zmq.EINVAL, zmq.Context, 0)
+        self.assertRaisesErrno(zmqpy.EINVAL, zmqpy.Context, 0)
 
     def test_instance(self):
-        ctx = zmq.Context.instance()
-        c2 = zmq.Context.instance(io_threads=2)
+        ctx = zmqpy.Context.instance()
+        c2 = zmqpy.Context.instance(io_threads=2)
         self.assertTrue(c2 is ctx)
         c2.term()
-        c3 = zmq.Context.instance()
-        c4 = zmq.Context.instance()
+        c3 = zmqpy.Context.instance()
+        c4 = zmqpy.Context.instance()
         self.assertFalse(c3 is c2)
         self.assertFalse(c3.closed)
         self.assertTrue(c3 is c4)
 
     def test_term_hang(self):
-        rep, req = self.create_bound_pair(zmq.XREP, zmq.XREQ)
-        req.setsockopt(zmq.LINGER, 0)
+        rep, req = self.create_bound_pair(zmqpy.XREP, zmqpy.XREQ)
+        req.setsockopt(zmqpy.LINGER, 0)
         req.send(asbytes('hello'), copy=False)
         req.close()
         rep.close()
@@ -77,9 +76,9 @@ class TestContext(BaseZMQTestCase):
         
     def test_many_sockets(self):
         """opening and closing many sockets shouldn't cause problems"""
-        ctx = zmq.Context()
+        ctx = zmqpy.Context()
         for i in range(16):
-            sockets = [ ctx.socket(zmq.REP) for i in range(66) ]
+            sockets = [ ctx.socket(zmqpy.REP) for i in range(66) ]
             [ s.close() for s in sockets ]
             # give the reaper a chance
             time.sleep(1e-2)
@@ -87,8 +86,8 @@ class TestContext(BaseZMQTestCase):
     
     def test_term_close(self):
         """Context.term should close sockets"""
-        ctx = zmq.Context()
-        sockets = [ ctx.socket(zmq.REP) for i in range(66) ]
+        ctx = zmqpy.Context()
+        sockets = [ ctx.socket(zmqpy.REP) for i in range(66) ]
         # close half of the sockets
         [ s.close() for s in sockets[::2] ]
         

@@ -24,9 +24,9 @@
 import time
 import unittest
 
-import zmqpy as zmq
+import zmqpy
 from zmqpy.utils.strtypes import asbytes
-from zmqpy.tests import BaseZMQTestCase
+from __init__ import BaseZMQTestCase
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -35,22 +35,20 @@ from zmqpy.tests import BaseZMQTestCase
 class TestPubSub(BaseZMQTestCase):
     # We are disabling this test while an issue is being resolved.
     def test_basic(self):
-        s1, s2 = self.create_bound_pair(zmq.PUB, zmq.SUB)
-        s2.setsockopt(zmq.SUBSCRIBE,asbytes(''))
-        time.sleep(0.1)
+        s1, s2 = self.create_bound_pair(zmqpy.PUSH, zmqpy.PULL)
         msg1 = asbytes('message')
         s1.send(msg1)
+        time.sleep(0.1)
         msg2 = s2.recv()  # This is blocking!
         self.assertEquals(msg1, msg2)
 
     def test_topic(self):
-        s1, s2 = self.create_bound_pair(zmq.PUB, zmq.SUB)
-        import pdb; pdb.set_trace()
-        s2.setsockopt(zmq.SUBSCRIBE, asbytes('x'))
+        s1, s2 = self.create_bound_pair(zmqpy.PUB, zmqpy.SUB)
+        s2.setsockopt(zmqpy.SUBSCRIBE, asbytes('x'))
         time.sleep(0.1)
         msg1 = asbytes('message')
         s1.send(msg1)
-        self.assertRaisesErrno(zmq.EAGAIN, s2.recv, zmq.NOBLOCK)
+        self.assertRaisesErrno(zmqpy.EAGAIN, s2.recv, zmqpy.NOBLOCK)
         msg1 = asbytes('xmessage')
         s1.send(msg1)
         msg2 = s2.recv()

@@ -31,13 +31,15 @@ class BaseZMQTestCase(TestCase):
                           interface='tcp://127.0.0.1'):
         """Create a bound socket pair using a random port."""
         s1 = zmq.Socket(self.context, type1)
-        s1.setsockopt(zmq.LINGER, 0)
-        #port = s1.bind_to_random_port(interface)
-        port=4455
-        s1.bind(interface+':4455')
+        s1.setsockopt(zmq.LINGER, 5)
+        
         s2 = zmq.Socket(self.context, type2)
-        s2.setsockopt(zmq.LINGER, 0)
+        s2.setsockopt(zmq.LINGER, 5)
+        
+        port=3333
+        s1.bind('%s:%s' % (interface, port))
         s2.connect('%s:%s' % (interface, port))
+        
         self.sockets.extend([s1,s2])
         return s1, s2
 

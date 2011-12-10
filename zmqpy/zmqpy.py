@@ -307,7 +307,7 @@ class Socket(object):
         czmq.zsocket_bind(self.handle, c_char_p(address))
 
     def connect(self, address):
-	    czmq.zsocket_connect(self.handle, c_char_p(address))
+	czmq.zsocket_connect(self.handle, c_char_p(address))
 
     def send(self, content, flags=0, copy=True, track=False):
         czmq.zstr_send(self.handle, c_char_p(content))
@@ -337,7 +337,6 @@ class Socket(object):
             support.
         """
         msg = pickle.dumps(obj, protocol)
-        import pdb; pdb.set_trace()
         return self.send(msg, flags)
 
     def recv_pyobj(self, flags=0):
@@ -356,7 +355,6 @@ class Socket(object):
             The Python object that arrives as a message.
         """
         s = self.recv(flags)
-        import pdb; pdb.set_trace()
         return pickle.loads(s)
 
     def send_json(self, obj, flags=0):

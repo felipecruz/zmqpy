@@ -26,7 +26,9 @@ import unittest
 import zmqpy as zmq
 from zmqpy.utils.strtypes import asbytes
 
-from zmqpy.tests import BaseZMQTestCase
+from __init__ import BaseZMQTestCase
+
+#from zmqpy.tests import BaseZMQTestCase
 
 #-----------------------------------------------------------------------------
 # Tests
