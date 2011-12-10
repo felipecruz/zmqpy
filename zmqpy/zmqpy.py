@@ -174,19 +174,62 @@ class zmq_pollitem_t(Structure):
                 ("events", c_short),
                 ("revents", c_short)]
 
-poller_callback_func = CFUNCTYPE(c_void_p, POINTER(zmq_pollitem_t), c_void_p)
+#poller_callback_func = CFUNCTYPE(c_void_p, c_void_p, c_void_p)
+poller_callback_func = CFUNCTYPE(c_int, POINTER(zmq_loop), POINTER(zmq_pollitem_t), c_void_p)
 
 czmq.zloop_new.restype = POINTER(zmq_loop)
 czmq.zloop_new.argtypes = []
 
 czmq.zloop_destroy.restype = None
-czmq.zloop_destroy.argtypes = [POINTER(zmq_loop)]
+czmq.zloop_destroy.argtypes = [POINTER(POINTER(zmq_loop))]
 
 czmq.zloop_poller.restype = c_int
 czmq.zloop_poller.argtypes = [POINTER(zmq_loop), POINTER(zmq_pollitem_t), poller_callback_func, c_void_p]
 
 czmq.zloop_start.restype = c_int
 czmq.zloop_start.argtypes = [POINTER(zmq_loop)]
+
+czmq.zloop_timer.restype = c_int
+czmq.zloop_timer.argtypes = [
+                                POINTER(zmq_loop), 
+                                c_size_t, 
+                                c_size_t, 
+                                poller_callback_func, 
+                                c_void_p
+                            ]
+
+czmq.zloop_set_verbose.restype = None
+czmq.zloop_set_verbose.argtypes = [POINTER(zmq_loop), c_bool]
+
+class Loop(object):
+    def __init__(self, verbose=False):
+        self.loop = czmq.zloop_new()
+        if verbose:
+            czmq.zloop_set_verbose(self.loop, c_bool(True))
+        self.callbacks = []
+
+    def start(self):
+        return czmq.zloop_start(self.loop)
+    
+    def timer(self, delay, times, function, socket):
+        czmq.zloop_timer(self.loop, 
+                         c_size_t(delay), 
+                         c_size_t(times),
+                         poller_callback_func(function),
+                         c_void_p(socket.handle)
+                         )
+         
+
+    def poller(self, item, event, socket):
+        self.callbacks.append(event)
+        czmq.zloop_poller(self.loop,
+                          pointer(item),
+                          poller_callback_func(event),
+                          c_void_p(socket)
+                          )
+
+    def destroy(self):
+        czmq.zloop_destroy(pointer(self.loop))
 
 '''
 //  Callback function for reactor events
@@ -403,3 +446,5 @@ class Socket(object):
         if not self._closed:
             czmq.zsocket_destroy(self.context.ctx, self.handle)
             self._closed = True
+
+

@@ -1,7 +1,9 @@
+zmqpy - czmq/ctypes zeromq library in python
+
 You'll nedd py.test - http://pytest.org/latest/
 
-testing:
+It's working only with pypy
 
 <pre>
-py.test --verbose -s tests
+python runtests.py
 </pre>
