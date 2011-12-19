@@ -26,6 +26,10 @@ czmq.zctx_destroy.argtypes = [c_void_p]
 czmq.zctx_set_linger.restype = None
 czmq.zctx_set_linger.argtypes = [c_void_p, c_int]
 
+czmq.zctx_set_iothreads.restype = None
+czmq.zctx_set_iothreads.argtypes = [c_void_p, c_int]
+
+
 #czmq.zerror_errno.restype = c_int
 #czmq.zerror_errno.argtypes = []
 
@@ -174,8 +178,10 @@ class zmq_pollitem_t(Structure):
                 ("events", c_short),
                 ("revents", c_short)]
 
-#poller_callback_func = CFUNCTYPE(c_void_p, c_void_p, c_void_p)
-poller_callback_func = CFUNCTYPE(c_int, POINTER(zmq_loop), POINTER(zmq_pollitem_t), c_void_p)
+poller_callback_func = CFUNCTYPE(c_int, 
+                                 POINTER(zmq_loop), 
+                                 POINTER(zmq_pollitem_t), 
+                                 c_void_p)
 
 czmq.zloop_new.restype = POINTER(zmq_loop)
 czmq.zloop_new.argtypes = []
@@ -184,7 +190,12 @@ czmq.zloop_destroy.restype = None
 czmq.zloop_destroy.argtypes = [POINTER(POINTER(zmq_loop))]
 
 czmq.zloop_poller.restype = c_int
-czmq.zloop_poller.argtypes = [POINTER(zmq_loop), POINTER(zmq_pollitem_t), poller_callback_func, c_void_p]
+czmq.zloop_poller.argtypes = [
+        POINTER(zmq_loop), 
+        POINTER(zmq_pollitem_t), 
+        poller_callback_func, 
+        c_void_p
+    ]
 
 czmq.zloop_start.restype = c_int
 czmq.zloop_start.argtypes = [POINTER(zmq_loop)]
@@ -283,10 +294,12 @@ int
 _instance = None
 
 class Context(object):
-    def __init__(self, io_threads=1):
-        if not io_threads > 0:
+    def __init__(self, iothreads=1):
+        if not iothreads > 0:
             raise ZMQError(EINVAL)
         self.ctx = czmq.zctx_new()
+        self.linger = 1
+        self.iothreads = iothreads
         czmq.zctx_set_linger(self.ctx, c_int(1))
         self._closed = False
         self.n_sockets = 0
@@ -305,10 +318,10 @@ class Context(object):
         return self._closed
 
     @classmethod
-    def instance(cls, io_threads=1):
+    def instance(cls, iothreads=1):
         global _instance
         if _instance is None or _instance.closed:
-            _instance = cls(io_threads)
+            _instance = cls(iothreads)
         return _instance
 
     def _add_socket(self, socket):
@@ -323,7 +336,14 @@ class Context(object):
         if self._closed:
             raise ZMQError(ENOTSUP)
         return Socket(self, sock_type)
-        
+
+    def set_iothreads(self, iothreads=1):
+        czmq.zctx_set_iothreads(self.ctx, c_int(iothreads))
+        self.iothreads = iothreads
+
+    def set_linger(self, linger=1):
+        czmq.zctx_set_linger(self.ctx, c_int(linger))
+        self.linger = linger
 
 class Socket(object):
     def __init__(self, context, sock_type):

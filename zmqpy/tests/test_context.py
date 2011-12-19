@@ -57,7 +57,7 @@ class TestContext(BaseZMQTestCase):
 
     def test_instance(self):
         ctx = zmqpy.Context.instance()
-        c2 = zmqpy.Context.instance(io_threads=2)
+        c2 = zmqpy.Context.instance(iothreads=2)
         self.assertTrue(c2 is ctx)
         c2.term()
         c3 = zmqpy.Context.instance()
@@ -83,7 +83,9 @@ class TestContext(BaseZMQTestCase):
             # give the reaper a chance
             time.sleep(1e-2)
         ctx.term()
-    
+        for s in sockets:
+            self.assertTrue(s.closed)
+   
     def test_term_close(self):
         """Context.term should close sockets"""
         ctx = zmqpy.Context()
@@ -94,6 +96,20 @@ class TestContext(BaseZMQTestCase):
         ctx.term()
         for s in sockets:
             self.assertTrue(s.closed)
+
+    def test_set_linger(self):
+        ctx = zmqpy.Context()
+        self.assertEquals(ctx.linger, 1)
+
+        ctx.set_linger(10)
+        self.assertEquals(ctx.linger, 10)
+
+    def test_set_iothreads(self):
+        ctx = zmqpy.Context()
+        self.assertEquals(ctx.iothreads, 1)
+
+        ctx.set_iothreads(10)
+        self.assertEquals(ctx.iothreads, 10)
 
 if __name__ == "__main__":
     unittest.main()
