@@ -29,7 +29,6 @@ czmq.zctx_set_linger.argtypes = [c_void_p, c_int]
 czmq.zctx_set_iothreads.restype = None
 czmq.zctx_set_iothreads.argtypes = [c_void_p, c_int]
 
-
 #czmq.zerror_errno.restype = c_int
 #czmq.zerror_errno.argtypes = []
 
@@ -53,28 +52,6 @@ czmq.zstr_send.argtypes = [c_void_p, c_char_p]
 
 czmq.zstr_recv_nowait.restype = c_char_p
 czmq.zstr_recv_nowait.argtypes = [c_void_p]
-
-'''
-//  Receive a string off a socket, caller must free it
-char *
-    zstr_recv (void *socket);
-
-//  Receive a string off a socket if socket had input waiting
-char *
-    zstr_recv_nowait (void *socket);
-
-//  Send a string to a socket in ØMQ string format
-int
-    zstr_send (void *socket, const char *string);
-
-//  Send a string to a socket in ØMQ string format, with MORE flag
-int
-    zstr_sendm (void *socket, const char *string);
-
-//  Send a formatted string to a socket
-int
-    zstr_sendf (void *socket, const char *format, ...);
-'''
 
 czmq.zsockopt_sndhwm.restype = c_int
 czmq.zsockopt_sndhwm.argtypes = [c_void_p]
@@ -242,55 +219,6 @@ class Loop(object):
     def destroy(self):
         czmq.zloop_destroy(pointer(self.loop))
 
-'''
-//  Callback function for reactor events
-typedef int (zloop_fn) (zloop_t *loop, zmq_pollitem_t *item, void *arg);
-
-//  Create a new zloop reactor
-zloop_t *
-    zloop_new (void);
-
-//  Destroy a reactor
-void
-    zloop_destroy (zloop_t **self_p);
-
-//  Register pollitem with the reactor. When the pollitem is ready, will call
-//  the handler, passing the arg. Returns 0 if OK, -1 if there was an error.
-//  If you register the pollitem more than once, each instance will invoke its
-//  corresponding handler.
-int
-    zloop_poller (zloop_t *self, zmq_pollitem_t *item, zloop_fn handler, void *arg);
-
-//  Cancel a pollitem from the reactor, specified by socket or FD. If both
-//  are specified, uses only socket. If multiple poll items exist for same
-//  socket/FD, cancels ALL of them.
-void
-    zloop_poller_end (zloop_t *self, zmq_pollitem_t *item);
-
-//  Register a timer that expires after some delay and repeats some number of
-//  times. At each expiry, will call the handler, passing the arg. To
-//  run a timer forever, use 0 times. Returns 0 if OK, -1 if there was an
-//  error.
-int
-    zloop_timer (zloop_t *self, size_t delay, size_t times, zloop_fn handler, void *arg);
-
-//  Cancel all timers for a specific argument (as provided in zloop_timer)
-void
-    zloop_timer_end (zloop_t *self, void *arg);
-
-//  Set verbose tracing of reactor on/off
-void
-    zloop_set_verbose (zloop_t *self, Bool verbose);
-
-//  Start the reactor. Takes control of the thread and returns when the ØMQ
-//  context is terminated or the process is interrupted, or any event handler
-//  returns -1. Event handlers may register new sockets and timers, and
-//  cancel sockets. Returns 0 if interrupted, -1 if cancelled by a handler.
-int
-    zloop_start (zloop_t *self);
-'''
-
-
 _instance = None
 
 class Context(object):
@@ -380,7 +308,8 @@ class Socket(object):
             data = czmq.zstr_recv_nowait(self.handle)
             if not data:
                 raise zmqpy.ZMQError()
-            
+            return data
+
         return czmq.zstr_recv(self.handle)
         
     def send_pyobj(self, obj, flags=0, protocol=0):
@@ -467,4 +396,82 @@ class Socket(object):
             czmq.zsocket_destroy(self.context.ctx, self.handle)
             self._closed = True
 
+'''
+//  Create a new frame with optional size, and optional data
+zframe_t *
+    zframe_new (const void *data, size_t size);
 
+//  Destroy a frame
+void
+    zframe_destroy (zframe_t **self_p);
+
+//  Receive frame from socket, returns zframe_t object or NULL if the recv
+//  was interrupted. Does a blocking recv, if you want to not block then use
+//  zframe_recv_nowait().
+zframe_t *
+    zframe_recv (void *socket);
+
+//  Receive a new frame off the socket. Returns newly allocated frame, or
+//  NULL if there was no input waiting, or if the read was interrupted.
+zframe_t *
+    zframe_recv_nowait (void *socket);
+
+    //  Send a frame to a socket, destroy frame after sending
+void
+    zframe_send (zframe_t **self_p, void *socket, int flags);
+
+'''
+class zmq_msg_t(Structure):
+    __fields__ = ('_',c_ubyte * 32)
+
+class zmq_frame(Structure):
+    __fields__ = [
+                    ('zmsg', zmq_msg_t),
+                    ('more', c_int)
+                ]
+
+czmq.zframe_new.restype = POINTER(zmq_frame)
+czmq.zframe_new.argtypes = [c_void_p, c_size_t]
+
+czmq.zframe_recv.restype = POINTER(zmq_frame)
+czmq.zframe_recv.argtypes = [c_void_p]
+
+czmq.zframe_recv_nowait.restype = POINTER(zmq_frame)
+czmq.zframe_recv_nowait.argtypes = [c_void_p]
+
+czmq.zframe_send.restype = c_int
+czmq.zframe_send.argtypes = [POINTER(POINTER(zmq_frame)), c_void_p, c_int]
+
+czmq.zframe_data.restype = c_char_p
+czmq.zframe_data.argtypes = [POINTER(zmq_frame)]
+
+class ZFrame(object):
+    '''
+        zmq frame object
+    '''
+    def __init__(self, data=None):
+        self.data = data
+        if data:
+            buffer = create_string_buffer(data)
+            self.zframe = czmq.zframe_new(
+                            buffer,
+                            c_size_t(sizeof(buffer))
+                            )
+        else:
+            self.zframe = czmq.zframe_new(
+                            POINTER(c_int)(),
+                            c_ulong(0)
+                        )
+
+    def send(self, socket, flags):
+        return czmq.zframe_send(
+                pointer(self.zframe),
+                socket.handle,
+                c_int(flags)
+            )
+
+    @staticmethod
+    def recv(socket):
+        frame_ref = czmq.zframe_recv_nowait(socket.handle)
+        str_data = czmq.zframe_data(frame_ref)
+        return ZFrame(str_data)
