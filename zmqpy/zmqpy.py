@@ -7,6 +7,8 @@ from constants import *
 from error import *
 from utils import jsonapi
 
+from collections import defaultdict
+
 import pickle
 
 czmq = CDLL(find_library("czmq"), use_errno=True)
@@ -174,6 +176,9 @@ czmq.zloop_poller.argtypes = [
         c_void_p
     ]
 
+czmq.zloop_poller_end.restype = None
+czmq.zloop_poller_end.argtypes = [POINTER(zmq_loop), POINTER(zmq_pollitem_t)]
+
 czmq.zloop_start.restype = c_int
 czmq.zloop_start.argtypes = [POINTER(zmq_loop)]
 
@@ -194,10 +199,11 @@ class Loop(object):
         self.loop = czmq.zloop_new()
         if verbose:
             czmq.zloop_set_verbose(self.loop, c_bool(True))
-        self.callbacks = []
+        #self.callbacks = defaultdict(list)
 
     def start(self):
-        return czmq.zloop_start(self.loop)
+        rc = czmq.zloop_start(self.loop)
+        return rc
     
     def timer(self, delay, times, function, socket):
         czmq.zloop_timer(self.loop, 
@@ -209,12 +215,22 @@ class Loop(object):
          
 
     def poller(self, item, event, socket):
-        self.callbacks.append(event)
+        socket_handler = socket
+        if hasattr(socket, 'handle'):
+            socket_handler = socket.handle
+
+        #self.callbacks[item].append(event)
         czmq.zloop_poller(self.loop,
                           pointer(item),
                           poller_callback_func(event),
-                          c_void_p(socket)
+                          socket_handler
                           )
+
+    def poller_end(self, item):
+        #del self.callbacks[item]
+        czmq.zloop_poller_end(self.loop,
+                              pointer(item)
+                             )
 
     def destroy(self):
         czmq.zloop_destroy(pointer(self.loop))
@@ -472,6 +488,6 @@ class ZFrame(object):
 
     @staticmethod
     def recv(socket):
-        frame_ref = czmq.zframe_recv_nowait(socket.handle)
+        frame_ref = czmq.zframe_recv(socket.handle)
         str_data = czmq.zframe_data(frame_ref)
         return ZFrame(str_data)
