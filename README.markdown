@@ -15,5 +15,6 @@ python runtests.py
 
 Test environments
 
-* osx - pypy 1.7 - zmq 2.x, 3.x
-* linux(mint12) - pypy 1.7 - zmq 2.x
+* osx 64 - pypy 1.7 - zmq 2.x, 3.x
+* linux 32 - pypy 1.7 - zmq 2.x
+* linux 32 - python 2.7.2 - zmq 2.x
