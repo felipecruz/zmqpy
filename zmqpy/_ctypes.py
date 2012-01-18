@@ -6,6 +6,9 @@ from ctypes.util import find_library
 from constants import *
 from error import *
 
+#FIXME check version!!
+zmq_version_major = 2
+
 czmq = CDLL(find_library("czmq"), use_errno=True)
 
 if not czmq._name:
@@ -65,99 +68,201 @@ czmq.zstr_send.argtypes = [c_void_p, c_char_p]
 czmq.zstr_recv_nowait.restype = c_char_p
 czmq.zstr_recv_nowait.argtypes = [c_void_p]
 
-czmq.zsockopt_sndhwm.restype = c_int
-czmq.zsockopt_sndhwm.argtypes = [c_void_p]
+if zmq_version_major == 2:
+    czmq.zsockopt_hwm.restype = c_int
+    czmq.zsockopt_hwm.argtypes = [c_void_p]
 
-czmq.zsockopt_rcvhwm.restype = c_int
-czmq.zsockopt_rcvhwm.argtypes = [c_void_p]
+    czmq.zsockopt_swap.restype = c_int
+    czmq.zsockopt_swap.argtypes = [c_void_p]
 
-czmq.zsockopt_affinity.restype = c_int
-czmq.zsockopt_affinity.argtypes = [c_void_p]
+    czmq.zsockopt_affinity.restype = c_int
+    czmq.zsockopt_affinity.argtypes = [c_void_p]
 
-czmq.zsockopt_rate.restype = c_int
-czmq.zsockopt_rate.argtypes = [c_void_p]
+    czmq.zsockopt_rate.restype = c_int
+    czmq.zsockopt_rate.argtypes = [c_void_p]
 
-czmq.zsockopt_recovery_ivl.restype = c_int
-czmq.zsockopt_recovery_ivl.argtypes = [c_void_p]
+    czmq.zsockopt_recovery_ivl.restype = c_int
+    czmq.zsockopt_recovery_ivl.argtypes = [c_void_p]
 
-czmq.zsockopt_sndbuf.restype = c_int
-czmq.zsockopt_sndbuf.argtypes = [c_void_p]
+    czmq.zsockopt_recovery_ivl_msec.restype = c_int
+    czmq.zsockopt_recovery_ivl_msec.argtypes = [c_void_p]
 
-czmq.zsockopt_rcvbuf.restype = c_int
-czmq.zsockopt_rcvbuf.argtypes = [c_void_p]
+    czmq.zsockopt_mcast_loop.restype = c_int
+    czmq.zsockopt_mcast_loop.argtypes = [c_void_p]
 
-czmq.zsockopt_linger.restype = c_int
-czmq.zsockopt_linger.argtypes = [c_void_p]
+    czmq.zsockopt_sndbuf.restype = c_int
+    czmq.zsockopt_sndbuf.argtypes = [c_void_p]
 
-czmq.zsockopt_reconnect_ivl.restype = c_int
-czmq.zsockopt_reconnect_ivl.argtypes = [c_void_p]
+    czmq.zsockopt_rcvbuf.restype = c_int
+    czmq.zsockopt_rcvbuf.argtypes = [c_void_p]
 
-czmq.zsockopt_reconnect_ivl_max.restype = c_int
-czmq.zsockopt_reconnect_ivl_max.argtypes = [c_void_p]
+    czmq.zsockopt_linger.restype = c_int
+    czmq.zsockopt_linger.argtypes = [c_void_p]
 
-czmq.zsockopt_backlog.restype = c_int
-czmq.zsockopt_backlog.argtypes = [c_void_p]
+    czmq.zsockopt_reconnect_ivl.restype = c_int
+    czmq.zsockopt_reconnect_ivl.argtypes = [c_void_p]
 
-czmq.zsockopt_maxmsgsize.restype = c_int
-czmq.zsockopt_maxmsgsize.argtypes = [c_void_p]
+    czmq.zsockopt_reconnect_ivl_max.restype = c_int
+    czmq.zsockopt_reconnect_ivl_max.argtypes = [c_void_p]
 
-czmq.zsockopt_type.restype = c_int
-czmq.zsockopt_type.argtypes = [c_void_p]
+    czmq.zsockopt_backlog.restype = c_int
+    czmq.zsockopt_backlog.argtypes = [c_void_p]
 
-czmq.zsockopt_rcvmore.restype = c_int
-czmq.zsockopt_rcvmore.argtypes = [c_void_p]
+    czmq.zsockopt_type.restype = c_int
+    czmq.zsockopt_type.argtypes = [c_void_p]
 
-czmq.zsockopt_fd.restype = c_int
-czmq.zsockopt_fd.argtypes = [c_void_p]
+    czmq.zsockopt_rcvmore.restype = c_int
+    czmq.zsockopt_rcvmore.argtypes = [c_void_p]
 
-czmq.zsockopt_events.restype = c_int
-czmq.zsockopt_events.argtypes = [c_void_p]
+    czmq.zsockopt_fd.restype = c_int
+    czmq.zsockopt_fd.argtypes = [c_void_p]
 
-czmq.zsockopt_set_sndhwm.restype = None
-czmq.zsockopt_set_sndhwm.argtypes = [c_void_p, c_int]
+    czmq.zsockopt_events.restype = c_int
+    czmq.zsockopt_events.argtypes = [c_void_p]
 
-czmq.zsockopt_set_sndhwm.restype = None
-czmq.zsockopt_set_sndhwm.argtypes = [c_void_p, c_int]
+    czmq.zsockopt_set_hwm.restype = None
+    czmq.zsockopt_set_hwm.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_swap.restype = None
+    czmq.zsockopt_set_swap.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_affinity.restype = None
+    czmq.zsockopt_set_affinity.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_identity.restype = None
+    czmq.zsockopt_set_identity.argtypes = [c_void_p, c_char_p]
+    
+    czmq.zsockopt_set_rate.restype = None
+    czmq.zsockopt_set_rate.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_recovery_ivl.restype = None
+    czmq.zsockopt_set_recovery_ivl.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_recovery_ivl_msec.restype = None
+    czmq.zsockopt_set_recovery_ivl_msec.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_mcast_loop.restype = None
+    czmq.zsockopt_set_mcast_loop.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_sndbuf.restype = None
+    czmq.zsockopt_set_sndbuf.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_rcvbuf.restype = None
+    czmq.zsockopt_set_rcvbuf.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_linger.restype = None
+    czmq.zsockopt_set_linger.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_reconnect_ivl.restype = None
+    czmq.zsockopt_set_reconnect_ivl.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_reconnect_ivl_max.restype = None
+    czmq.zsockopt_set_reconnect_ivl_max.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_backlog.restype = None
+    czmq.zsockopt_set_backlog.argtypes = [c_void_p, c_int]
 
-czmq.zsockopt_set_rcvhwm.restype = None
-czmq.zsockopt_set_rcvhwm.argtypes = [c_void_p, c_int]
+    czmq.zsockopt_set_subscribe.restype = None
+    czmq.zsockopt_set_subscribe.argtypes = [c_void_p, c_char_p]
+    
+    czmq.zsockopt_set_unsubscribe.restype = None
+    czmq.zsockopt_set_unsubscribe.argtypes = [c_void_p, c_char_p]
 
-czmq.zsockopt_set_affinity.restype = None
-czmq.zsockopt_set_affinity.argtypes = [c_void_p, c_int]
 
-czmq.zsockopt_set_identity.restype = None
-czmq.zsockopt_set_identity.argtypes = [c_void_p, c_char_p]
-
-czmq.zsockopt_set_rate.restype = None
-czmq.zsockopt_set_rate.argtypes = [c_void_p, c_int]
-
-czmq.zsockopt_set_recovery_ivl.restype = None
-czmq.zsockopt_set_recovery_ivl.argtypes = [c_void_p, c_int]
-
-czmq.zsockopt_set_sndbuf.restype = None
-czmq.zsockopt_set_sndbuf.argtypes = [c_void_p, c_int]
-
-czmq.zsockopt_set_linger.restype = None
-czmq.zsockopt_set_linger.argtypes = [c_void_p, c_int]
-
-czmq.zsockopt_set_reconnect_ivl.restype = None
-czmq.zsockopt_set_reconnect_ivl.argtypes = [c_void_p, c_int]
-
-czmq.zsockopt_set_reconnect_ivl_max.restype = None
-czmq.zsockopt_set_reconnect_ivl_max.argtypes = [c_void_p, c_int]
-
-czmq.zsockopt_set_backlog.restype = None
-czmq.zsockopt_set_backlog.argtypes = [c_void_p, c_int]
-
-czmq.zsockopt_set_maxmsgsize.restype = None
-czmq.zsockopt_set_maxmsgsize.argtypes = [c_void_p, c_int]
-
-czmq.zsockopt_set_subscribe.restype = None
-czmq.zsockopt_set_subscribe.argtypes = [c_void_p, c_char_p]
-
-czmq.zsockopt_set_unsubscribe.restype = None
-czmq.zsockopt_set_unsubscribe.argtypes = [c_void_p, c_char_p]
-
+if zmq_version_major == 3:
+    czmq.zsockopt_sndhwm.restype = c_int
+    czmq.zsockopt_sndhwm.argtypes = [c_void_p]
+    
+    czmq.zsockopt_rcvhwm.restype = c_int
+    czmq.zsockopt_rcvhwm.argtypes = [c_void_p]
+    
+    czmq.zsockopt_affinity.restype = c_int
+    czmq.zsockopt_affinity.argtypes = [c_void_p]
+    
+    czmq.zsockopt_rate.restype = c_int
+    czmq.zsockopt_rate.argtypes = [c_void_p]
+    
+    czmq.zsockopt_recovery_ivl.restype = c_int
+    czmq.zsockopt_recovery_ivl.argtypes = [c_void_p]
+    
+    czmq.zsockopt_sndbuf.restype = c_int
+    czmq.zsockopt_sndbuf.argtypes = [c_void_p]
+    
+    czmq.zsockopt_rcvbuf.restype = c_int
+    czmq.zsockopt_rcvbuf.argtypes = [c_void_p]
+    
+    czmq.zsockopt_linger.restype = c_int
+    czmq.zsockopt_linger.argtypes = [c_void_p]
+    
+    czmq.zsockopt_reconnect_ivl.restype = c_int
+    czmq.zsockopt_reconnect_ivl.argtypes = [c_void_p]
+    
+    czmq.zsockopt_reconnect_ivl_max.restype = c_int
+    czmq.zsockopt_reconnect_ivl_max.argtypes = [c_void_p]
+    
+    czmq.zsockopt_backlog.restype = c_int
+    czmq.zsockopt_backlog.argtypes = [c_void_p]
+    
+    czmq.zsockopt_maxmsgsize.restype = c_int
+    czmq.zsockopt_maxmsgsize.argtypes = [c_void_p]
+    
+    czmq.zsockopt_type.restype = c_int
+    czmq.zsockopt_type.argtypes = [c_void_p]
+    
+    czmq.zsockopt_rcvmore.restype = c_int
+    czmq.zsockopt_rcvmore.argtypes = [c_void_p]
+    
+    czmq.zsockopt_fd.restype = c_int
+    czmq.zsockopt_fd.argtypes = [c_void_p]
+    
+    czmq.zsockopt_events.restype = c_int
+    czmq.zsockopt_events.argtypes = [c_void_p]
+    
+    czmq.zsockopt_set_sndhwm.restype = None
+    czmq.zsockopt_set_sndhwm.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_sndhwm.restype = None
+    czmq.zsockopt_set_sndhwm.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_rcvhwm.restype = None
+    czmq.zsockopt_set_rcvhwm.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_affinity.restype = None
+    czmq.zsockopt_set_affinity.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_identity.restype = None
+    czmq.zsockopt_set_identity.argtypes = [c_void_p, c_char_p]
+    
+    czmq.zsockopt_set_rate.restype = None
+    czmq.zsockopt_set_rate.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_recovery_ivl.restype = None
+    czmq.zsockopt_set_recovery_ivl.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_sndbuf.restype = None
+    czmq.zsockopt_set_sndbuf.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_linger.restype = None
+    czmq.zsockopt_set_linger.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_reconnect_ivl.restype = None
+    czmq.zsockopt_set_reconnect_ivl.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_reconnect_ivl_max.restype = None
+    czmq.zsockopt_set_reconnect_ivl_max.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_backlog.restype = None
+    czmq.zsockopt_set_backlog.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_maxmsgsize.restype = None
+    czmq.zsockopt_set_maxmsgsize.argtypes = [c_void_p, c_int]
+    
+    czmq.zsockopt_set_subscribe.restype = None
+    czmq.zsockopt_set_subscribe.argtypes = [c_void_p, c_char_p]
+    
+    czmq.zsockopt_set_unsubscribe.restype = None
+    czmq.zsockopt_set_unsubscribe.argtypes = [c_void_p, c_char_p]
+    
 poller_callback_func = CFUNCTYPE(c_int, 
                                  POINTER(zmq_loop), 
                                  POINTER(zmq_pollitem_t), 
