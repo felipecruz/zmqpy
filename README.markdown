@@ -13,4 +13,10 @@ You'll need py.test - http://pytest.org/latest/
 python runtests.py
 </pre>
 
+Test environments:
+ * osx - pypy 1.7 - zmq 2.x, 3.x
+ * linux(mint12) - pypy 1.7 - zmq 2.x
+
 *It's working only with pypy(tested against 1.7) it gives segmentation fault on cpython.*
+
+
