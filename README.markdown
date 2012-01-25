@@ -43,4 +43,3 @@ Test environments:
 </table>
 
 *python 2.6.x and 2.7.2 both fail with segmentation fault on macosx 64 10.6.8*
-
