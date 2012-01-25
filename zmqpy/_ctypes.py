@@ -68,7 +68,8 @@ czmq.zstr_send.argtypes = [c_void_p, c_char_p]
 czmq.zstr_recv_nowait.restype = c_char_p
 czmq.zstr_recv_nowait.argtypes = [c_void_p]
 
-if zmq_version_major == 2:
+try:
+    #trying zmq version 2
     czmq.zsockopt_hwm.restype = c_int
     czmq.zsockopt_hwm.argtypes = [c_void_p]
 
@@ -167,9 +168,8 @@ if zmq_version_major == 2:
     
     czmq.zsockopt_set_unsubscribe.restype = None
     czmq.zsockopt_set_unsubscribe.argtypes = [c_void_p, c_char_p]
-
-
-if zmq_version_major == 3:
+except Exception:
+    #trying zmq version 3 
     czmq.zsockopt_sndhwm.restype = c_int
     czmq.zsockopt_sndhwm.argtypes = [c_void_p]
     
