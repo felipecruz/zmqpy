@@ -14,9 +14,33 @@ python runtests.py
 </pre>
 
 Test environments:
- * osx - pypy 1.7 - zmq 2.x, 3.x
- * linux(mint12) - pypy 1.7 - zmq 2.x
 
-*It's working only with pypy(tested against 1.7) it gives segmentation fault on cpython.*
+<table>
+  <th>
+    <td>linux</td>
+    <td>osx</td>
+  </th>
+  <tr>
+    <td>python 2.7.2 zmq 2.x</td>
+    <td>ok</td>
+    <td>--</td>
+  </tr>
+  <tr>
+    <td>python 2.7.2 zmq 3.x</td>
+    <td>ok</td>
+    <td>--</td>
+  </tr>
+  <tr>
+    <td>pypy 1.7 zmq 2.x</td>
+    <td>ok</td>
+    <td>ok</td>
+  </tr>
+  <tr>
+    <td>pypy 1.7 zmq 3.x</td>
+    <td>ok</td>
+    <td>ok</td>
+  </tr>
+</table>
 
+*python 2.6.x and 2.7.2 both fail with segmentation fault on macosx 64 10.6.8*
 
