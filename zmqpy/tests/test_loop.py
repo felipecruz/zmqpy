@@ -36,7 +36,7 @@ class TestLoop(BaseZMQTestCase):
 
         def socket_event(loop, item, args):
             checklist.append(1)
-            if len(checklist) >= 3:
+            if len(checklist) >= 2:
                 return -1
             return 0
 
@@ -58,19 +58,17 @@ class TestLoop(BaseZMQTestCase):
                 self.loop.destroy()
         
         loop_thread = LoopThread(loop)
-        loop_thread.start()
         
-        import time
         loop.poller(_input, socket_event, None)
         s1.send('message 1')
         loop.poller_end(_input)
         s1.send('message 2')
         loop.poller(_input, socket_event, None)
-        s1.send('message 3')
-        time.sleep(0.2)
+        
+        loop_thread.start()
         loop_thread.join()
         loop.destroy()
-        self.assertTrue(len(checklist) == 3)
+        self.assertTrue(len(checklist) == 2)
 
 if __name__ == "__main__":
     unittest.main()

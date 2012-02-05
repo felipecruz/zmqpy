@@ -6,9 +6,6 @@ from ctypes.util import find_library
 from constants import *
 from error import *
 
-#FIXME check version!!
-zmq_version_major = 2
-
 czmq = CDLL(find_library("czmq"), use_errno=True)
 
 if not czmq._name:
@@ -27,13 +24,11 @@ class zmq_pollitem_t(Structure):
                 ("revents", c_short)]
 
 class zmq_msg_t(Structure):
-    __fields__ = ('_',c_ubyte * 32)
+    _fields_ = [('_',c_ubyte * 32)]
 
 class zmq_frame(Structure):
-    __fields__ = [
-                    ('zmsg', zmq_msg_t),
-                    ('more', c_int)
-                 ]
+    _fields_ = [('zmsg', zmq_msg_t),
+                ('more', c_int)]
 
 czmq.zctx_new.restype = POINTER(zmq_context)
 czmq.zctx_new.argtypes = []
