@@ -5,7 +5,7 @@ zmqpy - czmq/ctypes zeromq library in python
 
 The goal is to provide a zmq library compatible with the python/pypy implementation and to provide an event-driver reactor instead of a poll-like interface.
 
-Install czmq library from my repository: https://github.com/felipecruz/czmq
+Install czmq library : https://github.com/zeromq/czmq
 
 You'll need py.test - http://pytest.org/latest/
 
