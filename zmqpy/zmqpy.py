@@ -82,11 +82,11 @@ class Socket(object):
 
     def setsockopt(self, option, _type):
         if option == LINGER:
-            czmq.zsockopt_set_linger(self.handle, c_int(_type))
+            czmq.zsocket_set_linger(self.handle, c_int(_type))
         if option == SUBSCRIBE:
-            czmq.zsockopt_set_subscribe(self.handle, c_char_p(_type))
+            czmq.zsocket_set_subscribe(self.handle, c_char_p(_type))
         if option == IDENTITY:
-            czmq.zsockopt_set_identity(self.handle, c_char_p(_type))
+            czmq.zsocket_set_identity(self.handle, c_char_p(_type))
 
     def bind(self, address):
         czmq.zsocket_bind(self.handle, c_char_p(address))
