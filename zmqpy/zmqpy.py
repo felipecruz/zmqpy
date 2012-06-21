@@ -22,7 +22,7 @@ class Context(object):
         self.n_sockets = 0
         self.max_sockets = 32
         self._sockets = {}
-        
+
     def term(self):
         for k, s in self._sockets.items():
             if not s.closed:
@@ -47,14 +47,14 @@ class Context(object):
         self.n_sockets += 1
 
         return self.n_sockets
-        
+
     def _rm_socket(self, n):
         del self._sockets[n]
-        
+
     def socket(self, sock_type):
         if self._closed:
             raise ZMQError(ENOTSUP)
-        
+
         return Socket(self, sock_type)
 
     def set_iothreads(self, iothreads=1):
@@ -75,8 +75,8 @@ class Socket(object):
         self._closed = False
         self._attrs = {}
         self.n = self.context._add_socket(self)
-       
-    @property 
+
+    @property
     def closed(self):
         return self._closed
 
@@ -96,7 +96,7 @@ class Socket(object):
 
     def send(self, content, flags=0, copy=True, track=False):
         czmq.zstr_send(self.handle, c_char_p(content))
-    
+
     def recv(self, flags=0, copy=True, track=False):
         if flags == DONTWAIT:
             data = czmq.zstr_recv_nowait(self.handle)
@@ -105,7 +105,7 @@ class Socket(object):
             return data
 
         return czmq.zstr_recv(self.handle)
-        
+
     def send_pyobj(self, obj, flags=0, protocol=0):
         """s.send_pyobj(obj, flags=0, protocol=0)
 
@@ -182,8 +182,8 @@ class Socket(object):
                                quired.')
         else:
             msg = self.recv(flags)
-            return jsonapi.loads(msg)     
-        
+            return jsonapi.loads(msg)
+
     def close(self):
         if not self._closed:
             czmq.zsocket_destroy(self.context.ctx, self.handle)
@@ -199,13 +199,13 @@ class Loop(object):
     def start(self):
         rc = czmq.zloop_start(self.loop)
         return rc
-    
+
     def timer(self, delay, times, function, socket):
-        czmq.zloop_timer(self.loop, 
-                         c_size_t(delay), 
+        czmq.zloop_timer(self.loop,
+                         c_size_t(delay),
                          c_size_t(times),
                          poller_callback_func(function),
-                         c_void_p(socket.handle))         
+                         c_void_p(socket.handle))
 
     def poller(self, item, event, socket):
         socket_handler = socket
