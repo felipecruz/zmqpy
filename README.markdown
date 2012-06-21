@@ -1,9 +1,16 @@
-zmqpy - czmq/ctypes zeromq library in python
+zmqpy - zeromq bindings in python
 ============================================
 
 **This code is a work in progress**
 
 The goal is to provide a zmq library compatible with the python/pypy implementation and to provide an event-driver reactor instead of a poll-like interface.
+
+I was kind of pointless to use zmqpy with ctypes, since the current ctypes implementation is **really** slow and segfaults on OSX.
+
+There is this new, and very promissing project, called cffi (http://cffi.readthedocs.org/) that allows zmqpy to be
+a reasonable alternative to pyzmq since it not segfaults (so far) and is much faster than ctypes one.
+
+This project still exprimental but with cffi it'll be possible to create a production ready zmq biding for python.
 
 Install czmq library : https://github.com/zeromq/czmq
 
