@@ -92,7 +92,7 @@ class Socket(object):
         czmq.zsocket_bind(self.handle, c_char_p(address))
 
     def connect(self, address):
-	    czmq.zsocket_connect(self.handle, c_char_p(address))
+        czmq.zsocket_connect(self.handle, c_char_p(address))
 
     def send(self, content, flags=0, copy=True, track=False):
         czmq.zstr_send(self.handle, c_char_p(content))
