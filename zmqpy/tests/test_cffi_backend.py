@@ -24,6 +24,17 @@ def test_zmq_socket():
 
     assert socket
 
+def test_zmq_socket_close():
+    from zmqpy._cffi import C
+    from zmqpy.constants import PUSH
+
+    ctx = C.zmq_init(1)
+    socket = C.zmq_socket(ctx, PUSH)
+
+    ret = C.zmq_close(socket)
+
+    assert ret == 0
+
 def test_zmq_bind_connect():
     from zmqpy.constants import PAIR
 

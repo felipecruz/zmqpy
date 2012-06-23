@@ -18,11 +18,16 @@ typedef struct {
 
 void* zmq_init(int);
 int zmq_term(void *context);
+
 void* zmq_socket(void *context, int type);
+int zmq_close(void *socket);
+
 int zmq_bind(void *socket, const char *endpoint);
 int zmq_connect(void *socket, const char *endpoint);
+
 int zmq_send(void *socket, zmq_msg_t *msg, int flags);
 int zmq_recv(void *socket, zmq_msg_t *msg, int flags);
+
 typedef ... zmq_free_fn;
 
 int zmq_msg_init(zmq_msg_t *msg);
@@ -32,6 +37,7 @@ int zmq_msg_init_data(zmq_msg_t *msg,
                       size_t size,
                       zmq_free_fn *ffn,
                       void *hint);
+
 size_t zmq_msg_size(zmq_msg_t *msg);
 void *zmq_msg_data(zmq_msg_t *msg);
 ''')
