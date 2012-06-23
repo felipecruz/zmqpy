@@ -1,11 +1,19 @@
 import pytest
 
-def test_zctx_init():
+def test_zmq_init():
     from zmqpy._cffi import C
 
     ctx = C.zmq_init(1)
 
     assert ctx
+
+def test_zmq_term():
+    from zmqpy._cffi import C
+
+    ctx = C.zmq_init(1)
+    ret = C.zmq_term(ctx)
+
+    assert ret == 0
 
 def test_zmq_socket():
     from zmqpy._cffi import C

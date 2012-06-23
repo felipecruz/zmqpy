@@ -17,6 +17,7 @@ typedef struct {
 } zmq_msg_t;
 
 void* zmq_init(int);
+int zmq_term(void *context);
 void* zmq_socket(void *context, int type);
 int zmq_bind(void *socket, const char *endpoint);
 int zmq_connect(void *socket, const char *endpoint);
