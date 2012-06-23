@@ -37,4 +37,4 @@ void *zmq_msg_data(zmq_msg_t *msg);
 
 C = ffi.verify('''
     #include <zmq.h>
-''')
+''', libraries=['zmq'])
