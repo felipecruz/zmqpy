@@ -35,6 +35,18 @@ def test_zmq_socket_close():
 
     assert ret == 0
 
+def test_zmq_setsockopt():
+    from zmqpy._cffi import C, ffi
+    from zmqpy.constants import PUSH, IDENTITY
+
+    ctx = C.zmq_init(1)
+    socket = C.zmq_socket(ctx, PUSH)
+
+    identity = ffi.new('char[3]', 'zmq')
+    ret = C.zmq_setsockopt(socket, IDENTITY, ffi.cast('void*', identity), 3)
+    assert ret == 0
+
+
 def test_zmq_bind_connect():
     from zmqpy.constants import PAIR
 
@@ -78,7 +90,6 @@ def test_zmq_msg_close():
     ret = C.zmq_msg_close(zmq_msg)
 
     assert ret == 0
-
 
 def test_zmq_msg_init_size():
     from zmqpy._cffi import C, ffi
