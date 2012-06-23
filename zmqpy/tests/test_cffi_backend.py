@@ -70,6 +70,16 @@ def test_zmq_msg_init():
 
     assert zmq_msg
 
+def test_zmq_msg_close():
+    from zmqpy._cffi import C, ffi
+
+    zmq_msg = ffi.new('zmq_msg_t')
+    C.zmq_msg_init(zmq_msg)
+    ret = C.zmq_msg_close(zmq_msg)
+
+    assert ret == 0
+
+
 def test_zmq_msg_init_size():
     from zmqpy._cffi import C, ffi
 
