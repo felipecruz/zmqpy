@@ -33,6 +33,7 @@ int zmq_msg_init_data(zmq_msg_t *msg,
                       void *hint);
 size_t zmq_msg_size(zmq_msg_t *msg);
 void *zmq_msg_data(zmq_msg_t *msg);
+int zmq_msg_close(zmq_msg_t *msg);
 ''')
 
 C = ffi.verify('''

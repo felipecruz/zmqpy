@@ -69,9 +69,41 @@ def test_zmq_msg_init_data():
     assert zmq_msg
 
     message = ffi.new('char[5]', 'Hello')
-    C.zmq_msg_init_data(zmq_msg, ffi.cast('void*', message), 5, None, None)
+    C.zmq_msg_init_data(zmq_msg, ffi.cast('void*', message), 5, ffi.NULL,
+                                                                ffi.NULL)
 
     assert zmq_msg
+
+def test_zmq_msg_close():
+    from zmqpy._cffi import C, ffi
+
+    zmq_msg = ffi.new('zmq_msg_t')
+    assert zmq_msg
+
+    message = ffi.new('char[5]', 'Hello')
+    C.zmq_msg_init_data(zmq_msg, ffi.cast('void*', message), 5, ffi.NULL,
+                                                                ffi.NULL)
+
+    assert zmq_msg
+
+    ret = C.zmq_msg_close(zmq_msg)
+    assert ret == 0
+
+def test_zmq_msg_data():
+    from zmqpy._cffi import C, ffi
+
+    zmq_msg = ffi.new('zmq_msg_t')
+    assert zmq_msg
+
+    message = ffi.new('char[]', 'Hello')
+    C.zmq_msg_init_data(zmq_msg, ffi.cast('void*', message), 5, ffi.NULL,
+                                                                ffi.NULL)
+
+    assert zmq_msg
+
+    data = C.zmq_msg_data(zmq_msg)
+    assert str(ffi.cast("char*", data)) == 'Hello'
+
 
 def test_zmq_send():
     from zmqpy.constants import PAIR, NOBLOCK
@@ -80,7 +112,8 @@ def test_zmq_send():
     zmq_msg = ffi.new('zmq_msg_t')
 
     message = ffi.new('char[5]', 'Hello')
-    C.zmq_msg_init_data(zmq_msg, ffi.cast('void*', message), 5, None, None)
+    C.zmq_msg_init_data(zmq_msg, ffi.cast('void*', message), 5, ffi.NULL,
+                                                                ffi.NULL)
 
     ctx = C.zmq_init(1)
 
@@ -111,8 +144,8 @@ def test_zmq_recv():
     C.zmq_msg_init_data(zmq_msg,
                         ffi.cast('void*', message),
                         ffi.cast('size_t', 5),
-                        None,
-                        ffi.cast('void*', 0))
+                        ffi.NULL,
+                        ffi.NULL)
 
     zmq_msg2 = ffi.new('zmq_msg_t')
     C.zmq_msg_init(zmq_msg2)
