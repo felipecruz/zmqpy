@@ -10,7 +10,7 @@ czmq = CDLL(find_library("czmq"), use_errno=True)
 
 if not czmq._name:
     raise ImportError('Cannot load czmq library')
-    
+
 class zmq_context(Structure):
     pass
 
@@ -118,149 +118,154 @@ try:
 
     czmq.zsocket_set_hwm.restype = None
     czmq.zsocket_set_hwm.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_swap.restype = None
     czmq.zsocket_set_swap.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_affinity.restype = None
     czmq.zsocket_set_affinity.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_identity.restype = None
     czmq.zsocket_set_identity.argtypes = [c_void_p, c_char_p]
-    
+
     czmq.zsocket_set_rate.restype = None
     czmq.zsocket_set_rate.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_recovery_ivl.restype = None
     czmq.zsocket_set_recovery_ivl.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_recovery_ivl_msec.restype = None
     czmq.zsocket_set_recovery_ivl_msec.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_mcast_loop.restype = None
     czmq.zsocket_set_mcast_loop.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_sndbuf.restype = None
     czmq.zsocket_set_sndbuf.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_rcvbuf.restype = None
     czmq.zsocket_set_rcvbuf.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_linger.restype = None
     czmq.zsocket_set_linger.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_reconnect_ivl.restype = None
     czmq.zsocket_set_reconnect_ivl.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_reconnect_ivl_max.restype = None
     czmq.zsocket_set_reconnect_ivl_max.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_backlog.restype = None
     czmq.zsocket_set_backlog.argtypes = [c_void_p, c_int]
 
     czmq.zsocket_set_subscribe.restype = None
     czmq.zsocket_set_subscribe.argtypes = [c_void_p, c_char_p]
-    
+
     czmq.zsocket_set_unsubscribe.restype = None
     czmq.zsocket_set_unsubscribe.argtypes = [c_void_p, c_char_p]
-except Exception:
-    #trying zmq version 3 
+except Exception as e:
+    import logging
+
+    log = logging.getLogger()
+    log.error(e)
+
+    #trying zmq version 3
     czmq.zsocket_sndhwm.restype = c_int
     czmq.zsocket_sndhwm.argtypes = [c_void_p]
-    
+
     czmq.zsocket_rcvhwm.restype = c_int
     czmq.zsocket_rcvhwm.argtypes = [c_void_p]
-    
+
     czmq.zsocket_affinity.restype = c_int
     czmq.zsocket_affinity.argtypes = [c_void_p]
-    
+
     czmq.zsocket_rate.restype = c_int
     czmq.zsocket_rate.argtypes = [c_void_p]
-    
+
     czmq.zsocket_recovery_ivl.restype = c_int
     czmq.zsocket_recovery_ivl.argtypes = [c_void_p]
-    
+
     czmq.zsocket_sndbuf.restype = c_int
     czmq.zsocket_sndbuf.argtypes = [c_void_p]
-    
+
     czmq.zsocket_rcvbuf.restype = c_int
     czmq.zsocket_rcvbuf.argtypes = [c_void_p]
-    
+
     czmq.zsocket_linger.restype = c_int
     czmq.zsocket_linger.argtypes = [c_void_p]
-    
+
     czmq.zsocket_reconnect_ivl.restype = c_int
     czmq.zsocket_reconnect_ivl.argtypes = [c_void_p]
-    
+
     czmq.zsocket_reconnect_ivl_max.restype = c_int
     czmq.zsocket_reconnect_ivl_max.argtypes = [c_void_p]
-    
+
     czmq.zsocket_backlog.restype = c_int
     czmq.zsocket_backlog.argtypes = [c_void_p]
-    
+
     czmq.zsocket_maxmsgsize.restype = c_int
     czmq.zsocket_maxmsgsize.argtypes = [c_void_p]
-    
+
     czmq.zsocket_type.restype = c_int
     czmq.zsocket_type.argtypes = [c_void_p]
-    
+
     czmq.zsocket_rcvmore.restype = c_int
     czmq.zsocket_rcvmore.argtypes = [c_void_p]
-    
+
     czmq.zsocket_fd.restype = c_int
     czmq.zsocket_fd.argtypes = [c_void_p]
-    
+
     czmq.zsocket_events.restype = c_int
     czmq.zsocket_events.argtypes = [c_void_p]
-    
+
     czmq.zsocket_set_sndhwm.restype = None
     czmq.zsocket_set_sndhwm.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_sndhwm.restype = None
     czmq.zsocket_set_sndhwm.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_rcvhwm.restype = None
     czmq.zsocket_set_rcvhwm.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_affinity.restype = None
     czmq.zsocket_set_affinity.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_identity.restype = None
     czmq.zsocket_set_identity.argtypes = [c_void_p, c_char_p]
-    
+
     czmq.zsocket_set_rate.restype = None
     czmq.zsocket_set_rate.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_recovery_ivl.restype = None
     czmq.zsocket_set_recovery_ivl.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_sndbuf.restype = None
     czmq.zsocket_set_sndbuf.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_linger.restype = None
     czmq.zsocket_set_linger.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_reconnect_ivl.restype = None
     czmq.zsocket_set_reconnect_ivl.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_reconnect_ivl_max.restype = None
     czmq.zsocket_set_reconnect_ivl_max.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_backlog.restype = None
     czmq.zsocket_set_backlog.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_maxmsgsize.restype = None
     czmq.zsocket_set_maxmsgsize.argtypes = [c_void_p, c_int]
-    
+
     czmq.zsocket_set_subscribe.restype = None
     czmq.zsocket_set_subscribe.argtypes = [c_void_p, c_char_p]
-    
+
     czmq.zsocket_set_unsubscribe.restype = None
     czmq.zsocket_set_unsubscribe.argtypes = [c_void_p, c_char_p]
-    
-poller_callback_func = CFUNCTYPE(c_int, 
-                                 POINTER(zmq_loop), 
-                                 POINTER(zmq_pollitem_t), 
+
+poller_callback_func = CFUNCTYPE(c_int,
+                                 POINTER(zmq_loop),
+                                 POINTER(zmq_pollitem_t),
                                  c_void_p)
 
 czmq.zloop_new.restype = POINTER(zmq_loop)
@@ -271,9 +276,9 @@ czmq.zloop_destroy.argtypes = [POINTER(POINTER(zmq_loop))]
 
 czmq.zloop_poller.restype = c_int
 czmq.zloop_poller.argtypes = [
-                                POINTER(zmq_loop), 
-                                POINTER(zmq_pollitem_t), 
-                                poller_callback_func, 
+                                POINTER(zmq_loop),
+                                POINTER(zmq_pollitem_t),
+                                poller_callback_func,
                                 c_void_p
                              ]
 
@@ -285,10 +290,10 @@ czmq.zloop_start.argtypes = [POINTER(zmq_loop)]
 
 czmq.zloop_timer.restype = c_int
 czmq.zloop_timer.argtypes = [
-                                POINTER(zmq_loop), 
-                                c_size_t, 
-                                c_size_t, 
-                                poller_callback_func, 
+                                POINTER(zmq_loop),
+                                c_size_t,
+                                c_size_t,
+                                poller_callback_func,
                                 c_void_p
                             ]
 
