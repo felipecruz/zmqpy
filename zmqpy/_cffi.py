@@ -17,11 +17,29 @@ typedef struct {
 } zmq_msg_t;
 
 void* zmq_init(int);
+int zmq_term(void *context);
+
 void* zmq_socket(void *context, int type);
+int zmq_close(void *socket);
+
 int zmq_bind(void *socket, const char *endpoint);
 int zmq_connect(void *socket, const char *endpoint);
+
 int zmq_send(void *socket, zmq_msg_t *msg, int flags);
 int zmq_recv(void *socket, zmq_msg_t *msg, int flags);
+
+int zmq_errno(void);
+
+int zmq_getsockopt(void *socket,
+                   int option_name,
+                   void *option_value,
+                   size_t *option_len);
+
+int zmq_setsockopt(void *socket,
+                   int option_name,
+                   const void *option_value,
+                   size_t option_len);
+
 typedef ... zmq_free_fn;
 
 int zmq_msg_init(zmq_msg_t *msg);
@@ -31,6 +49,7 @@ int zmq_msg_init_data(zmq_msg_t *msg,
                       size_t size,
                       zmq_free_fn *ffn,
                       void *hint);
+
 size_t zmq_msg_size(zmq_msg_t *msg);
 void *zmq_msg_data(zmq_msg_t *msg);
 int zmq_msg_close(zmq_msg_t *msg);
@@ -38,4 +57,4 @@ int zmq_msg_close(zmq_msg_t *msg);
 
 C = ffi.verify('''
     #include <zmq.h>
-''')
+''', libraries=['zmq'])
