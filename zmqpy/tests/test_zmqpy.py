@@ -9,6 +9,11 @@ class TestZmqpy(unittest.TestCase):
             self.fail(ie.message)
 
 class TestContext(unittest.TestCase):
+    def tearDown(self):
+        from zmqpy import Context
+        c = Context()
+        c.term()
+
     def test_context_init(self):
         from zmqpy import Context
 
@@ -33,3 +38,30 @@ class TestContext(unittest.TestCase):
 
         assert c.closed
         assert c.zmq_ctx == None
+
+    def test_context_socket(self):
+        from zmqpy import Context, PAIR
+
+        c = Context()
+        socket = c.socket(PAIR)
+
+        assert socket
+        assert c.n_sockets == 1
+        assert len(c._sockets) == 1
+        assert not c.closed
+
+    def test_context_socket_term(self):
+        from zmqpy import Context, PAIR
+        c = Context()
+        socket = c.socket(PAIR)
+
+        assert socket
+        assert c.n_sockets == 1
+        assert len(c._sockets) == 1
+        assert not c.closed
+
+        c.term()
+
+        assert c.n_sockets == 0
+        assert len(c._sockets) == 0
+        assert socket.closed

@@ -28,6 +28,8 @@ class Context(object):
         for k, s in self._sockets.items():
             if not s.closed:
                 s.close()
+                self._rm_socket(k)
+                self.n_sockets -= 1
 
         C.zmq_term(self.zmq_ctx)
         self.zmq_ctx = None
@@ -52,20 +54,12 @@ class Context(object):
 
         return Socket(self, sock_type)
 
-    def set_iothreads(self, iothreads=1):
-        czmq.zctx_set_iothreads(self.ctx, c_int(iothreads))
-        self.iothreads = iothreads
-
-    def set_linger(self, linger=1):
-        czmq.zctx_set_linger(self.ctx, c_int(linger))
-        self.linger = linger
-
 class Socket(object):
     def __init__(self, context, sock_type):
         self.context = context
         self.sock_type = sock_type
-        self.handle = czmq.zsocket_new(self.context.ctx, c_int(self.sock_type))
-        if not self.handle:
+        self.zmq_socket = C.zmq_socket(context.zmq_ctx, sock_type)
+        if not self.zmq_socket:
             raise ZMQError()
         self._closed = False
         self._attrs = {}
@@ -75,31 +69,10 @@ class Socket(object):
     def closed(self):
         return self._closed
 
-    def setsockopt(self, option, _type):
-        if option == LINGER:
-            czmq.zsocket_set_linger(self.handle, c_int(_type))
-        if option == SUBSCRIBE:
-            czmq.zsocket_set_subscribe(self.handle, c_char_p(_type))
-        if option == IDENTITY:
-            czmq.zsocket_set_identity(self.handle, c_char_p(_type))
-
-    def bind(self, address):
-        czmq.zsocket_bind(self.handle, c_char_p(address))
-
-    def connect(self, address):
-        czmq.zsocket_connect(self.handle, c_char_p(address))
-
-    def send(self, content, flags=0, copy=True, track=False):
-        czmq.zstr_send(self.handle, c_char_p(content))
-
-    def recv(self, flags=0, copy=True, track=False):
-        if flags == DONTWAIT:
-            data = czmq.zstr_recv_nowait(self.handle)
-            if not data:
-                raise zmqpy.ZMQError()
-            return data
-
-        return czmq.zstr_recv(self.handle)
+    def close(self):
+        if not self._closed:
+            C.zmq_close(self.zmq_socket)
+            self._closed = True
 
     def send_pyobj(self, obj, flags=0, protocol=0):
         """s.send_pyobj(obj, flags=0, protocol=0)
@@ -179,10 +152,6 @@ class Socket(object):
             msg = self.recv(flags)
             return jsonapi.loads(msg)
 
-    def close(self):
-        if not self._closed:
-            czmq.zsocket_destroy(self.context.ctx, self.handle)
-            self._closed = True
 
 class Loop(object):
     def __init__(self, verbose=False):
