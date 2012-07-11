@@ -1,23 +1,24 @@
 # coding: utf-8
 
-import cPickle as pickle
-from ctypes import *
+#import cPickle as pickle
+#from ctypes import *
+#from _ctypes import *
 
-from _ctypes import *
+from _cffi import C, ffi
 from constants import *
 from error import *
 from utils import jsonapi
 
-_instance = None
-
 class Context(object):
+    _state = {}
     def __init__(self, iothreads=1):
         if not iothreads > 0:
             raise ZMQError(EINVAL)
-        self.ctx = czmq.zctx_new()
-        self.linger = 1
+
+        self.__dict__ = self._state
+
+        self.zmq_ctx = C.zmq_init(iothreads)
         self.iothreads = iothreads
-        czmq.zctx_set_linger(self.ctx, c_int(1))
         self._closed = False
         self.n_sockets = 0
         self.max_sockets = 32
@@ -27,20 +28,14 @@ class Context(object):
         for k, s in self._sockets.items():
             if not s.closed:
                 s.close()
-        czmq.zctx_destroy(pointer(self.ctx))
+
+        C.zmq_term(self.zmq_ctx)
+        self.zmq_ctx = None
         self._closed = True
 
     @property
     def closed(self):
         return self._closed
-
-    @classmethod
-    def instance(cls, iothreads=1):
-        global _instance
-        if _instance is None or _instance.closed:
-            _instance = cls(iothreads)
-
-        return _instance
 
     def _add_socket(self, socket):
         self._sockets[self.n_sockets] = socket
