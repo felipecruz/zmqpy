@@ -65,3 +65,91 @@ class TestContext(unittest.TestCase):
         assert c.n_sockets == 0
         assert len(c._sockets) == 0
         assert socket.closed
+
+class TestSocket(unittest.TestCase):
+    def tearDown(self):
+        from zmqpy import Context
+        c = Context()
+        c.term()
+
+    def test_socket_bind(self):
+        from zmqpy import Context, PAIR
+        c = Context()
+        socket = c.socket(PAIR)
+
+        bind = socket.bind('tcp://*:3333')
+        assert bind == 0
+
+        socket.close()
+
+    def test_socket_connect(self):
+        from zmqpy import Context, PAIR
+        c = Context()
+        sender = c.socket(PAIR)
+        receiver = c.socket(PAIR)
+
+        bind = receiver.bind('tcp://*:3333')
+        assert bind == 0
+
+        connect = sender.connect('tcp://127.0.0.1:3333')
+        assert connect == 0
+
+        sender.close()
+        receiver.close()
+
+    def test_socket_disconnected_send(self):
+        from zmqpy import Context, PAIR
+        c = Context()
+        socket = c.socket(PAIR)
+
+        ret = socket.send("zmqpy test message")
+
+        assert ret == -1
+        assert socket.last_errno > 0
+
+        socket.close()
+
+    def test_socket_connected_send(self):
+        from zmqpy import Context, PAIR
+        c = Context()
+        sender = c.socket(PAIR)
+        receiver = c.socket(PAIR)
+
+        bind = receiver.bind('tcp://*:3333')
+        connect = sender.connect('tcp://127.0.0.1:333')
+
+        ret = sender.send("zmqpy test message")
+
+        assert ret == 0
+        assert sender.last_errno == None
+
+        sender.close()
+        receiver.close()
+
+    def test_socket_connected_recv(self):
+        from zmqpy import Context, PAIR
+        c = Context()
+        sender = c.socket(PAIR)
+        receiver = c.socket(PAIR)
+
+        bind = receiver.bind('tcp://*:3333')
+        connect = sender.connect('tcp://127.0.0.1:3333')
+
+        assert bind == 0
+        assert connect == 0
+
+        ret = sender.send("zmqpy test message")
+
+        assert ret == 0
+        assert sender.last_errno == None
+
+        import time
+        time.sleep(0.2)
+        message, ret = receiver.recv()
+
+        assert ret == 0
+        assert sender.last_errno == None
+        assert message == "zmqpy test message"
+
+        sender.close()
+        receiver.close()

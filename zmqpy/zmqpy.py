@@ -64,6 +64,7 @@ class Socket(object):
         self._closed = False
         self._attrs = {}
         self.n = self.context._add_socket(self)
+        self.last_errno = None
 
     @property
     def closed(self):
@@ -73,6 +74,37 @@ class Socket(object):
         if not self._closed:
             C.zmq_close(self.zmq_socket)
             self._closed = True
+
+    def bind(self, address):
+        ret = C.zmq_bind(self.zmq_socket, address)
+        return ret
+
+    def connect(self, address):
+        ret = C.zmq_connect(self.zmq_socket, address)
+        return ret
+
+    def send(self, message, flags=NOBLOCK):
+        zmq_msg = ffi.new('zmq_msg_t')
+
+        message = ffi.new('char[]', message)
+        C.zmq_msg_init_data(zmq_msg, ffi.cast('void*', message), len(message),
+                                                                 ffi.NULL,
+                                                                 ffi.NULL)
+
+        ret = C.zmq_send(self.zmq_socket, zmq_msg, flags)
+        if ret < 0:
+            self.last_errno = C.zmq_errno()
+        return ret
+
+    def recv(self, flags=0):
+        zmq_msg = ffi.new('zmq_msg_t')
+        C.zmq_msg_init(zmq_msg)
+        ret = C.zmq_recv(self.zmq_socket, zmq_msg, flags)
+        value = str(ffi.cast('char*', C.zmq_msg_data(zmq_msg)))
+        if ret < 0:
+            self.last_errno = C.zmq_errno()
+        return value, ret
+
 
 class Loop(object):
     def __init__(self, verbose=False):
