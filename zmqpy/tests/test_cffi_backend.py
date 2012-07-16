@@ -120,7 +120,7 @@ def test_zmq_msg_close():
     zmq_msg = ffi.new('zmq_msg_t')
     assert zmq_msg
 
-    message = ffi.new('char[5]', 'Hello')
+    message = ffi.new('char[]', 'Hello')
     C.zmq_msg_init_data(zmq_msg, ffi.cast('void*', message), 5, ffi.NULL,
                                                                 ffi.NULL)
 
