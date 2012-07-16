@@ -46,6 +46,28 @@ def test_zmq_setsockopt():
     ret = C.zmq_setsockopt(socket, IDENTITY, ffi.cast('void*', identity), 3)
     assert ret == 0
 
+def test_zmq_getsockopt():
+    from zmqpy._cffi import C, ffi
+    from zmqpy.constants import PUSH, IDENTITY
+
+    ctx = C.zmq_init(1)
+    socket = C.zmq_socket(ctx, PUSH)
+
+    identity = ffi.new('char[]', 'zmq')
+    ret = C.zmq_setsockopt(socket, IDENTITY, ffi.cast('void*', identity), 3)
+    assert ret == 0
+
+    option_len = ffi.new('unsigned long', 3)
+    option = ffi.new('char')
+    ret = C.zmq_getsockopt(socket,
+                           IDENTITY,
+                           ffi.cast('void*', option),
+                           option_len)
+
+    assert ret == 0
+    assert str(ffi.cast('char*', option))[0] == "z"
+    assert str(ffi.cast('char*', option))[1] == "m"
+    assert str(ffi.cast('char*', option))[2] == "q"
 
 def test_zmq_bind_connect():
     from zmqpy.constants import PAIR
