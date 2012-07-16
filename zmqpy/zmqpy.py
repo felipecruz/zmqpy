@@ -28,10 +28,10 @@ class Context(object):
         for k, s in self._sockets.items():
             if not s.closed:
                 s.close()
-                self._rm_socket(k)
-                self.n_sockets -= 1
 
         C.zmq_term(self.zmq_ctx)
+        self.n_sockets = 0
+        self._sockets = {}
         self.zmq_ctx = None
         self._closed = True
 
