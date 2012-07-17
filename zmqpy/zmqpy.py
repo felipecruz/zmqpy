@@ -23,15 +23,18 @@ class Context(object):
         self.n_sockets = 0
         self.max_sockets = 32
         self._sockets = {}
+        self.sockopts = {LINGER: 1}
+        self.linger = 1
 
     def term(self):
+        if self.closed:
+            return
+
         for k, s in self._sockets.items():
             if not s.closed:
                 s.close()
 
         C.zmq_term(self.zmq_ctx)
-        self.n_sockets = 0
-        self._sockets = {}
         self.zmq_ctx = None
         self._closed = True
 
@@ -52,7 +55,15 @@ class Context(object):
         if self._closed:
             raise ZMQError(ENOTSUP)
 
-        return Socket(self, sock_type)
+        socket = Socket(self, sock_type)
+        for option, option_value in self.sockopts.items():
+            socket.setsockopt(option, option_value)
+
+        return socket
+
+    def set_linger(self, value):
+        self.sockopts[LINGER] = value
+        self.linger = value
 
 class Socket(object):
     def __init__(self, context, sock_type):
