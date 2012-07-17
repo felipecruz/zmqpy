@@ -30,14 +30,14 @@ from zmqpy.utils import jsonapi
 
 class BaseZMQTestCase(TestCase):
     def setUp(self):
-        self.context = zmq.Context.instance()
+        self.context = zmq.Context()
         self.sockets = []
-    
+
     def tearDown(self):
         contexts = set([self.context])
         while self.sockets:
             sock = self.sockets.pop()
-            contexts.add(sock.context)  # in case additional contexts 
+            contexts.add(sock.context)  # in case additional contexts
             sock.close()                # are created
         for ctx in contexts:
             t = Thread(target=ctx.term)
@@ -49,19 +49,19 @@ class BaseZMQTestCase(TestCase):
                 raise RuntimeError("context could not terminate, \
                                 open sockets likely remain in test")
 
-    def create_bound_pair(self, type1, type2, 
+    def create_bound_pair(self, type1, type2,
                           interface='tcp://127.0.0.1'):
         """Create a bound socket pair using a random port."""
         s1 = zmq.Socket(self.context, type1)
         s1.setsockopt(zmq.LINGER, 5)
-        
+
         s2 = zmq.Socket(self.context, type2)
         s2.setsockopt(zmq.LINGER, 5)
-        
+
         port=3333
         s1.bind('%s:%s' % (interface, port))
         s2.connect('%s:%s' % (interface, port))
-        
+
         self.sockets.extend([s1,s2])
         return s1, s2
 

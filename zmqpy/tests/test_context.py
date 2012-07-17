@@ -55,16 +55,18 @@ class TestContext(BaseZMQTestCase):
     def test_fail_init(self):
         self.assertRaisesErrno(zmqpy.EINVAL, zmqpy.Context, 0)
 
-    def test_instance(self):
-        ctx = zmqpy.Context.instance()
-        c2 = zmqpy.Context.instance(iothreads=2)
-        self.assertTrue(c2 is ctx)
+    def test_instance_state(self):
+        ctx = zmqpy.Context()
+        c2 = zmqpy.Context(iothreads=2)
+        self.assertTrue(ctx.iothreads)
         c2.term()
-        c3 = zmqpy.Context.instance()
-        c4 = zmqpy.Context.instance()
-        self.assertFalse(c3 is c2)
+        self.assertTrue(ctx.closed)
+        c3 = zmqpy.Context()
+        c4 = zmqpy.Context()
         self.assertFalse(c3.closed)
-        self.assertTrue(c3 is c4)
+        self.assertFalse(c4.closed)
+        c4.term()
+        self.assertTrue(ctx.closed)
 
     def test_term_hang(self):
         rep, req = self.create_bound_pair(zmqpy.XREP, zmqpy.XREQ)
@@ -72,8 +74,8 @@ class TestContext(BaseZMQTestCase):
         req.send(asbytes('hello'), copy=False)
         req.close()
         rep.close()
-        #self.context.term()
-        
+        self.context.term()
+
     def test_many_sockets(self):
         """opening and closing many sockets shouldn't cause problems"""
         ctx = zmqpy.Context()
@@ -85,15 +87,13 @@ class TestContext(BaseZMQTestCase):
         ctx.term()
         for s in sockets:
             self.assertTrue(s.closed)
-   
+
     def test_term_close(self):
         """Context.term should close sockets"""
-        ctx = zmqpy.Context()
-        sockets = [ ctx.socket(zmqpy.REP) for i in range(66) ]
+        sockets = [ self.context.socket(zmqpy.REP) for i in range(66) ]
         # close half of the sockets
         [ s.close() for s in sockets[::2] ]
-        
-        ctx.term()
+        self.context.term()
         for s in sockets:
             self.assertTrue(s.closed)
 
@@ -103,13 +103,6 @@ class TestContext(BaseZMQTestCase):
 
         ctx.set_linger(10)
         self.assertEquals(ctx.linger, 10)
-
-    def test_set_iothreads(self):
-        ctx = zmqpy.Context()
-        self.assertEquals(ctx.iothreads, 1)
-
-        ctx.set_iothreads(10)
-        self.assertEquals(ctx.iothreads, 10)
 
 if __name__ == "__main__":
     unittest.main()
