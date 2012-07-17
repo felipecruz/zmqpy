@@ -83,7 +83,23 @@ class Socket(object):
         ret = C.zmq_connect(self.zmq_socket, address)
         return ret
 
-    def send(self, message, flags=NOBLOCK):
+    def setsockopt(self, option, value):
+        if isinstance(value, str):
+            c_val = ffi.new('char[]', value)
+            ret = C.zmq_setsockopt(self.zmq_socket,
+                                   option,
+                                   ffi.cast('void*', c_val),
+                                   len(value))
+        elif isinstance(value, int):
+            c_val = ffi.new('int', value)
+            ret = C.zmq_setsockopt(self.zmq_socket,
+                                   option,
+                                   ffi.cast('void*', c_val),
+                                   ffi.sizeof('int'))
+        else:
+            raise ZMQError("Invalid option value")
+
+    def send(self, message, flags=NOBLOCK, copy=False):
         zmq_msg = ffi.new('zmq_msg_t')
 
         message = ffi.new('char[]', message)
