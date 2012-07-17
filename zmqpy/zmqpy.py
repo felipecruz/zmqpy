@@ -102,7 +102,7 @@ class Socket(object):
                                    ffi.cast('void*', c_val),
                                    len(value))
         elif isinstance(value, int):
-            c_val = ffi.new('int', value)
+            c_val = ffi.new('int*', value)
             ret = C.zmq_setsockopt(self.zmq_socket,
                                    option,
                                    ffi.cast('void*', c_val),
@@ -111,7 +111,7 @@ class Socket(object):
             raise ZMQError("Invalid option value")
 
     def send(self, message, flags=NOBLOCK, copy=False):
-        zmq_msg = ffi.new('zmq_msg_t')
+        zmq_msg = ffi.new('zmq_msg_t*')
 
         message = ffi.new('char[]', message)
         C.zmq_msg_init_data(zmq_msg, ffi.cast('void*', message), len(message),
@@ -124,7 +124,7 @@ class Socket(object):
         return ret
 
     def recv(self, flags=0):
-        zmq_msg = ffi.new('zmq_msg_t')
+        zmq_msg = ffi.new('zmq_msg_t*')
         C.zmq_msg_init(zmq_msg)
         ret = C.zmq_recv(self.zmq_socket, zmq_msg, flags)
         value = str(ffi.cast('char*', C.zmq_msg_data(zmq_msg)))

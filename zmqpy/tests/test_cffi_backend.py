@@ -6,6 +6,7 @@ def test_zmq_init():
     ctx = C.zmq_init(1)
 
     assert ctx
+    ret = C.zmq_term(ctx)
 
 def test_zmq_term():
     from zmqpy._cffi import C
@@ -57,8 +58,8 @@ def test_zmq_getsockopt():
     ret = C.zmq_setsockopt(socket, IDENTITY, ffi.cast('void*', identity), 3)
     assert ret == 0
 
-    option_len = ffi.new('unsigned long', 3)
-    option = ffi.new('char')
+    option_len = ffi.new('unsigned long*', 3)
+    option = ffi.new('char*')
     ret = C.zmq_getsockopt(socket,
                            IDENTITY,
                            ffi.cast('void*', option),
@@ -96,7 +97,7 @@ def test_zmq_bind_connect():
 def test_zmq_msg_init():
     from zmqpy._cffi import C, ffi
 
-    zmq_msg = ffi.new('zmq_msg_t')
+    zmq_msg = ffi.new('zmq_msg_t*')
 
     assert zmq_msg
 
@@ -107,7 +108,7 @@ def test_zmq_msg_init():
 def test_zmq_msg_close():
     from zmqpy._cffi import C, ffi
 
-    zmq_msg = ffi.new('zmq_msg_t')
+    zmq_msg = ffi.new('zmq_msg_t*')
     C.zmq_msg_init(zmq_msg)
     ret = C.zmq_msg_close(zmq_msg)
 
@@ -116,7 +117,7 @@ def test_zmq_msg_close():
 def test_zmq_msg_init_size():
     from zmqpy._cffi import C, ffi
 
-    zmq_msg = ffi.new('zmq_msg_t')
+    zmq_msg = ffi.new('zmq_msg_t*')
 
     assert zmq_msg
 
@@ -127,7 +128,7 @@ def test_zmq_msg_init_size():
 def test_zmq_msg_init_data():
     from zmqpy._cffi import C, ffi
 
-    zmq_msg = ffi.new('zmq_msg_t')
+    zmq_msg = ffi.new('zmq_msg_t*')
     assert zmq_msg
 
     message = ffi.new('char[5]', 'Hello')
@@ -139,7 +140,7 @@ def test_zmq_msg_init_data():
 def test_zmq_msg_close():
     from zmqpy._cffi import C, ffi
 
-    zmq_msg = ffi.new('zmq_msg_t')
+    zmq_msg = ffi.new('zmq_msg_t*')
     assert zmq_msg
 
     message = ffi.new('char[]', 'Hello')
@@ -154,7 +155,7 @@ def test_zmq_msg_close():
 def test_zmq_msg_data():
     from zmqpy._cffi import C, ffi
 
-    zmq_msg = ffi.new('zmq_msg_t')
+    zmq_msg = ffi.new('zmq_msg_t*')
     assert zmq_msg
 
     message = ffi.new('char[]', 'Hello')
@@ -171,7 +172,7 @@ def test_zmq_send():
     from zmqpy.constants import PAIR, NOBLOCK
     from zmqpy._cffi import C, ffi
 
-    zmq_msg = ffi.new('zmq_msg_t')
+    zmq_msg = ffi.new('zmq_msg_t*')
 
     message = ffi.new('char[5]', 'Hello')
     C.zmq_msg_init_data(zmq_msg, ffi.cast('void*', message), 5, ffi.NULL,
@@ -204,7 +205,7 @@ def test_zmq_recv():
     r1 = C.zmq_bind(receiver, 'tcp://*:3333')
     r2 = C.zmq_connect(sender, 'tcp://127.0.0.1:3333')
 
-    zmq_msg = ffi.new('zmq_msg_t')
+    zmq_msg = ffi.new('zmq_msg_t*')
     message = ffi.new('char[5]', 'Hello')
 
     C.zmq_msg_init_data(zmq_msg,
@@ -213,7 +214,7 @@ def test_zmq_recv():
                         ffi.NULL,
                         ffi.NULL)
 
-    zmq_msg2 = ffi.new('zmq_msg_t')
+    zmq_msg2 = ffi.new('zmq_msg_t*')
     C.zmq_msg_init(zmq_msg2)
 
     ret = C.zmq_send(sender, zmq_msg, 0)
@@ -239,7 +240,7 @@ def test_zmq_poll():
     r1 = C.zmq_bind(receiver, 'tcp://*:3333')
     r2 = C.zmq_connect(sender, 'tcp://127.0.0.1:3333')
 
-    zmq_msg = ffi.new('zmq_msg_t')
+    zmq_msg = ffi.new('zmq_msg_t*')
     message = ffi.new('char[5]', 'Hello')
 
     C.zmq_msg_init_data(zmq_msg,
@@ -248,7 +249,7 @@ def test_zmq_poll():
                         ffi.NULL,
                         ffi.NULL)
 
-    receiver_pollitem = ffi.new('zmq_pollitem_t')
+    receiver_pollitem = ffi.new('zmq_pollitem_t*')
     receiver_pollitem.socket = receiver
     receiver_pollitem.fd = 0
     receiver_pollitem.events = POLLIN | POLLOUT
@@ -274,7 +275,7 @@ def test_zmq_poll():
     assert int(receiver_pollitem.revents) & POLLIN
     assert not int(receiver_pollitem.revents) & POLLOUT
 
-    zmq_msg2 = ffi.new('zmq_msg_t')
+    zmq_msg2 = ffi.new('zmq_msg_t*')
     C.zmq_msg_init(zmq_msg2)
 
     ret_recv = C.zmq_recv(receiver, zmq_msg2, 0)
@@ -285,7 +286,7 @@ def test_zmq_poll():
 
     #assert C.zmq_msg_close(zmq_msg2) == 0
 
-    sender_pollitem = ffi.new('zmq_pollitem_t')
+    sender_pollitem = ffi.new('zmq_pollitem_t*')
     sender_pollitem.socket = sender
     sender_pollitem.fd = 0
     sender_pollitem.events = POLLIN | POLLOUT
@@ -294,7 +295,7 @@ def test_zmq_poll():
     ret = C.zmq_poll(sender_pollitem, 1, 0)
     assert ret == 0
 
-    zmq_msg_again = ffi.new('zmq_msg_t')
+    zmq_msg_again = ffi.new('zmq_msg_t*')
     message_again = ffi.new('char[11]', 'Hello Again')
 
     C.zmq_msg_init_data(zmq_msg_again,
