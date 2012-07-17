@@ -78,9 +78,9 @@ class TestContext(BaseZMQTestCase):
 
     def test_many_sockets(self):
         """opening and closing many sockets shouldn't cause problems"""
-        ctx = zmqpy.Context()
+        ctx = self.context
         for i in range(16):
-            sockets = [ ctx.socket(zmqpy.REP) for i in range(66) ]
+            sockets = [ ctx.socket(zmqpy.REP) for i in range(65) ]
             [ s.close() for s in sockets ]
             # give the reaper a chance
             time.sleep(1e-2)
@@ -90,7 +90,7 @@ class TestContext(BaseZMQTestCase):
 
     def test_term_close(self):
         """Context.term should close sockets"""
-        sockets = [ self.context.socket(zmqpy.REP) for i in range(66) ]
+        sockets = [ self.context.socket(zmqpy.REP) for i in range(65) ]
         # close half of the sockets
         [ s.close() for s in sockets[::2] ]
         self.context.term()
