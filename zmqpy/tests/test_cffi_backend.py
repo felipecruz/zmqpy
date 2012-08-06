@@ -66,9 +66,9 @@ def test_zmq_getsockopt():
                            option_len)
 
     assert ret == 0
-    assert str(ffi.cast('char*', option))[0] == "z"
-    assert str(ffi.cast('char*', option))[1] == "m"
-    assert str(ffi.cast('char*', option))[2] == "q"
+    assert ffi.string(ffi.cast('char*', option))[0] == "z"
+    assert ffi.string(ffi.cast('char*', option))[1] == "m"
+    assert ffi.string(ffi.cast('char*', option))[2] == "q"
 
 def test_zmq_bind_connect():
     from zmqpy.constants import PAIR
@@ -165,7 +165,7 @@ def test_zmq_msg_data():
     assert zmq_msg
 
     data = C.zmq_msg_data(zmq_msg)
-    assert str(ffi.cast("char*", data)) == 'Hello'
+    assert ffi.string(ffi.cast("char*", data)) == 'Hello'
 
 
 def test_zmq_send():
@@ -222,7 +222,7 @@ def test_zmq_recv():
 
     assert ret == ret2 == 0
     assert 5 == C.zmq_msg_size(zmq_msg2)
-    assert "Hello" == str(ffi.cast('char*', C.zmq_msg_data(zmq_msg2)))
+    assert "Hello" == ffi.string(ffi.cast('char*', C.zmq_msg_data(zmq_msg2)))
 
     assert C.zmq_close(sender) == 0
     assert C.zmq_close(receiver) == 0
@@ -282,7 +282,7 @@ def test_zmq_poll():
     assert ret_recv == 0
 
     assert 5 == C.zmq_msg_size(zmq_msg2)
-    assert "Hello" == str(ffi.cast('char*', C.zmq_msg_data(zmq_msg2)))
+    assert "Hello" == ffi.string(ffi.cast('char*', C.zmq_msg_data(zmq_msg2)))
 
     #assert C.zmq_msg_close(zmq_msg2) == 0
 
@@ -319,7 +319,7 @@ def test_zmq_poll():
     assert ret_recv == 0
 
     assert 11 == C.zmq_msg_size(zmq_msg2)
-    assert "Hello Again" == str(ffi.cast('char*', C.zmq_msg_data(zmq_msg2)))
+    assert "Hello Again" == ffi.string(ffi.cast('char*', C.zmq_msg_data(zmq_msg2)))
 
     assert C.zmq_close(sender) == 0
     assert C.zmq_close(receiver) == 0
