@@ -113,21 +113,31 @@ class Socket(object):
     def send(self, message, flags=NOBLOCK, copy=False):
         zmq_msg = ffi.new('zmq_msg_t*')
 
-        message = ffi.new('char[]', message)
-        C.zmq_msg_init_data(zmq_msg, ffi.cast('void*', message), len(message),
-                                                                 ffi.NULL,
-                                                                 ffi.NULL)
+        c_message = ffi.new('char[%d]' % len(message), message)
+        C.zmq_msg_init_data(zmq_msg, ffi.cast('void*', c_message),
+                                     ffi.cast('size_t', len(message)),
+                                     ffi.NULL,
+                                     ffi.NULL)
 
         ret = C.zmq_send(self.zmq_socket, zmq_msg, flags)
         if ret < 0:
             self.last_errno = C.zmq_errno()
+
+        C.zmq_msg_close(zmq_msg)
+
         return ret
 
     def recv(self, flags=0):
         zmq_msg = ffi.new('zmq_msg_t*')
+
         C.zmq_msg_init(zmq_msg)
+
         ret = C.zmq_recv(self.zmq_socket, zmq_msg, flags)
-        value = str(ffi.cast('char*', C.zmq_msg_data(zmq_msg)))
         if ret < 0:
             self.last_errno = C.zmq_errno()
-        return value, ret
+
+        value = ffi.string(ffi.cast('char*', C.zmq_msg_data(zmq_msg)))
+
+        C.zmq_msg_close(zmq_msg)
+
+        return value
