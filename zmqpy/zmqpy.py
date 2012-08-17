@@ -33,10 +33,12 @@ class Context(object):
         for k, s in self._sockets.items():
             if not s.closed:
                 s.close()
+            del self._sockets[k]
 
         C.zmq_term(self.zmq_ctx)
         self.zmq_ctx = None
         self._closed = True
+        self.n_sockets = 0
 
     @property
     def closed(self):
