@@ -112,7 +112,7 @@ class Socket(object):
         else:
             raise ZMQError("Invalid option value")
 
-    def send(self, message, flags=NOBLOCK, copy=False):
+    def send(self, message, flags=0, copy=False):
         zmq_msg = ffi.new('zmq_msg_t*')
 
         c_message = ffi.new('char[%d]' % len(message), message)
