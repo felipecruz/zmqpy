@@ -130,14 +130,14 @@ class Socket(object):
 
     def recv(self, flags=0):
         zmq_msg = ffi.new('zmq_msg_t*')
-
         C.zmq_msg_init(zmq_msg)
 
         ret = C.zmq_recv(self.zmq_socket, zmq_msg, flags)
         if ret < 0:
-            self.last_errno = C.zmq_errno()
+            C.zmq_msg_close(zmq_msg)
+            raise zmqpy.ZMQError(_errno=C.zmq_errno())
 
-        value = ffi.string(ffi.cast('char*', C.zmq_msg_data(zmq_msg)))
+        value = ffi.buffer(C.zmq_msg_data(zmq_msg), int(C.zmq_msg_size(zmq_msg)))[:]
 
         C.zmq_msg_close(zmq_msg)
 
