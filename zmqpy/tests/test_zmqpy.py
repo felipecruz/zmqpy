@@ -4,7 +4,7 @@ class TestZmqpy(unittest.TestCase):
     def test_import_zmqpy(self):
         try:
             import zmqpy
-            from zmqpy import Context, Socket, ZFrame
+            from zmqpy import Context, Socket
         except ImportError as ie:
             self.fail(ie.message)
 
