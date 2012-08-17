@@ -46,7 +46,7 @@ Coverage Report
 
 First time:
 
-`pip install -r coverage_requirements.txt`
+`pip install -r requirements.txt`
 
 And then:
 
