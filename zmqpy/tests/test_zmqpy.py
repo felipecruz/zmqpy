@@ -98,11 +98,11 @@ class TestSocket(unittest.TestCase):
         receiver.close()
 
     def test_socket_disconnected_send(self):
-        from zmqpy import Context, PAIR
+        from zmqpy import Context, PAIR, NOBLOCK
         c = Context()
         socket = c.socket(PAIR)
 
-        ret = socket.send("zmqpy test message")
+        ret = socket.send("zmqpy test message", NOBLOCK)
 
         assert ret == -1
         assert socket.last_errno > 0
