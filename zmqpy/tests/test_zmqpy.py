@@ -145,9 +145,8 @@ class TestSocket(unittest.TestCase):
 
         import time
         time.sleep(0.2)
-        message, ret = receiver.recv()
+        message = receiver.recv()
 
-        assert ret == 0
         assert sender.last_errno == None
         assert message == "zmqpy test message"
 
