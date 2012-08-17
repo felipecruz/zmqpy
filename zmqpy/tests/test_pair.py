@@ -47,31 +47,21 @@ class TestPair(BaseZMQTestCase):
     def test_multiple(self):
         s1, s2 = self.create_bound_pair(zmq.PAIR, zmq.PAIR)
 
-        for i in range(10):
+        for i in xrange(1, 10):
             msg = i*x
             s1.send(msg)
 
-        for i in range(10):
+        for i in range(1, 10):
             msg = i*x
             s2.send(msg)
 
-        for i in range(10):
+        for i in xrange(1, 10):
             msg = s1.recv()
             self.assertEquals(msg, i*x)
 
-        for i in range(10):
+        for i in xrange(1, 10):
             msg = s2.recv()
             self.assertEquals(msg, i*x)
-
-    def test_json(self):
-        s1, s2 = self.create_bound_pair(zmq.PAIR, zmq.PAIR)
-        o = dict(a=10,b=list(range(10)))
-        o2 = self.ping_pong_json(s1, s2, o)
-
-    def test_pyobj(self):
-        s1, s2 = self.create_bound_pair(zmq.PAIR, zmq.PAIR)
-        o = dict(a=10,b=range(10))
-        o2 = self.ping_pong_pyobj(s1, s2, o)
 
 if __name__ == "__main__":
     unittest.main()
