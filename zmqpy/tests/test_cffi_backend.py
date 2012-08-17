@@ -319,8 +319,7 @@ def test_zmq_poll():
     assert ret_recv == 0
 
     assert 11 == C.zmq_msg_size(zmq_msg2)
-    assert "Hello Again" == ffi.string(ffi.cast('char*', C.zmq_msg_data(zmq_msg2)))
-
+    assert "Hello Again" == ffi.buffer(C.zmq_msg_data(zmq_msg2), int(C.zmq_msg_size(zmq_msg2)))[:]
     assert C.zmq_close(sender) == 0
     assert C.zmq_close(receiver) == 0
     assert C.zmq_term(ctx) == 0
