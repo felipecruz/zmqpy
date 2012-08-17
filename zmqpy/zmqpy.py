@@ -122,10 +122,9 @@ class Socket(object):
                                      ffi.NULL)
 
         ret = C.zmq_send(self.zmq_socket, zmq_msg, flags)
+        C.zmq_msg_close(zmq_msg)
         if ret < 0:
             self.last_errno = C.zmq_errno()
-
-        C.zmq_msg_close(zmq_msg)
 
         return ret
 
