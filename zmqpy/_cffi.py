@@ -65,8 +65,11 @@ typedef struct
 
 int zmq_poll(zmq_pollitem_t *items, int nitems, long timeout);
 
+char* strncpy(const char* dest, const char* orig, size_t len);
+
 ''')
 
 C = ffi.verify('''
+    #include <string.h>
     #include <zmq.h>
-''', libraries=['zmq'])
+''', libraries=['c', 'zmq'])
