@@ -65,7 +65,7 @@ typedef struct
 
 int zmq_poll(zmq_pollitem_t *items, int nitems, long timeout);
 
-char* strncpy(const char* dest, const char* orig, size_t len);
+char* strncpy(char* dest, char* orig, size_t len);
 
 ''')
 
