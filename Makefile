@@ -6,4 +6,6 @@ coverage:
 
 clean:
 	rm -rf build/
+	rm -rf htmlcov/
 	rm -rf __pycache__/
+	rm -f .coverage
