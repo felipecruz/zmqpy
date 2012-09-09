@@ -115,11 +115,9 @@ class Socket(object):
     def send(self, message, flags=0, copy=False):
         zmq_msg = ffi.new('zmq_msg_t*')
 
-        c_message = ffi.new('char[%d]' % len(message), message)
-        C.zmq_msg_init_data(zmq_msg, ffi.cast('void*', c_message),
-                                     ffi.cast('size_t', len(message)),
-                                     ffi.NULL,
-                                     ffi.NULL)
+        c_message = ffi.new('char[]', message)
+        C.zmq_msg_init_size(zmq_msg, len(message))
+        C.strncpy(C.zmq_msg_data(zmq_msg), c_message, len(message))
 
         ret = C.zmq_send(self.zmq_socket, zmq_msg, flags)
         C.zmq_msg_close(zmq_msg)
