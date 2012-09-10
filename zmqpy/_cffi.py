@@ -2,7 +2,6 @@
 
 from cffi import FFI
 
-from constants import *
 from error import *
 
 ffi = FFI()
