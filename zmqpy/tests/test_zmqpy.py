@@ -152,3 +152,91 @@ class TestSocket(unittest.TestCase):
 
         sender.close()
         receiver.close()
+
+    def test_socket_setsockopt_uint64(self):
+        from zmqpy import Context, PAIR, ZMQ_HWM
+        c = Context()
+        sender = c.socket(PAIR)
+
+        rc = sender.setsockopt(ZMQ_HWM, 10)
+        assert rc == 0
+        sender.close()
+
+    def test_socket_getsockopt_uint64(self):
+        from zmqpy import Context, PAIR, ZMQ_HWM
+        c = Context()
+        sender = c.socket(PAIR)
+
+        rc = sender.setsockopt(ZMQ_HWM, 10)
+        assert rc == 0
+
+        opt_value = sender.getsockopt(ZMQ_HWM)
+        assert opt_value != -1
+        assert opt_value == 10
+        sender.close()
+
+    def test_socket_setsockopt_binary(self):
+        from zmqpy import Context, PAIR, ZMQ_IDENTITY
+        c = Context()
+        sender = c.socket(PAIR)
+
+        rc = sender.setsockopt(ZMQ_IDENTITY, "id")
+        assert rc == 0
+        sender.close()
+
+    def test_socket_getsockopt_binary(self):
+        from zmqpy import Context, PAIR, ZMQ_IDENTITY
+        c = Context()
+        sender = c.socket(PAIR)
+
+        rc = sender.setsockopt(ZMQ_IDENTITY, "id")
+        assert rc == 0
+
+        opt_value = sender.getsockopt(ZMQ_IDENTITY, length=2)
+        assert opt_value != -1
+        assert opt_value == "id"
+        sender.close()
+
+    def test_socket_setsockopt_int64(self):
+        from zmqpy import Context, PAIR, ZMQ_RATE
+        c = Context()
+        sender = c.socket(PAIR)
+
+        rc = sender.setsockopt(ZMQ_RATE, 200)
+        assert rc == 0
+        sender.close()
+
+    def test_socket_getsockopt_int64(self):
+        from zmqpy import Context, PAIR, ZMQ_RATE
+        c = Context()
+        sender = c.socket(PAIR)
+
+        rc = sender.setsockopt(ZMQ_RATE, 200)
+        assert rc == 0
+
+        opt_value = sender.getsockopt(ZMQ_RATE)
+        assert opt_value != -1
+        assert opt_value == 200
+        sender.close()
+
+    def test_socket_setsockopt_int(self):
+        from zmqpy import Context, PAIR, ZMQ_LINGER
+        c = Context()
+        sender = c.socket(PAIR)
+
+        rc = sender.setsockopt(ZMQ_LINGER, 10)
+        assert rc == 0
+        sender.close()
+
+    def test_socket_getsockopt_int(self):
+        from zmqpy import Context, PAIR, ZMQ_LINGER
+        c = Context()
+        sender = c.socket(PAIR)
+
+        rc = sender.setsockopt(ZMQ_LINGER, 10)
+        assert rc == 0
+
+        opt_value = sender.getsockopt(ZMQ_LINGER)
+        assert opt_value != -1
+        assert opt_value == 10
+        sender.close()

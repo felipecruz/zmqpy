@@ -4,7 +4,15 @@
 #from ctypes import *
 #from _ctypes import *
 
-from _cffi import C, ffi
+from _cffi import C, ffi, new_uint64_pointer, \
+                          new_int64_pointer, \
+                          new_int_pointer, \
+                          new_binary_data, \
+                          value_uint64_pointer, \
+                          value_int64_pointer, \
+                          value_int_pointer, \
+                          value_binary_data
+
 from constants import *
 from error import *
 from utils import jsonapi
@@ -67,6 +75,42 @@ class Context(object):
         self.sockopts[LINGER] = value
         self.linger = value
 
+def new_pointer_from_opt(option, length=0):
+    if option in uint64_opts:
+        return new_uint64_pointer()
+    elif option in int64_opts:
+        return new_int64_pointer()
+    elif option in int_opts:
+        return new_int_pointer()
+    elif option in binary_opts:
+        return new_binary_data(length)
+    else:
+        raise ValueError('Invalid option')
+
+def value_from_opt_pointer(option, opt_pointer, length=0):
+    if option in uint64_opts:
+        return int(opt_pointer[0])
+    elif option in int64_opts:
+        return int(opt_pointer[0])
+    elif option in int_opts:
+        return int(opt_pointer[0])
+    elif option in binary_opts:
+        return ffi.string(opt_pointer)
+    else:
+        raise ValueError('Invalid option')
+
+def initialize_opt_pointer(option, value, length=0):
+    if option in uint64_opts:
+        return value_uint64_pointer(value)
+    elif option in int64_opts:
+        return value_int64_pointer(value)
+    elif option in int_opts:
+        return value_int_pointer(value)
+    elif option in binary_opts:
+        return value_binary_data(value, length)
+    else:
+        raise ValueError('Invalid option')
+
 class Socket(object):
     def __init__(self, context, sock_type):
         self.context = context
@@ -97,20 +141,33 @@ class Socket(object):
         return ret
 
     def setsockopt(self, option, value):
+        length = None
         if isinstance(value, str):
-            c_val = ffi.new('char[]', value)
-            ret = C.zmq_setsockopt(self.zmq_socket,
-                                   option,
-                                   ffi.cast('void*', c_val),
-                                   len(value))
-        elif isinstance(value, int):
-            c_val = ffi.new('int*', value)
-            ret = C.zmq_setsockopt(self.zmq_socket,
-                                   option,
-                                   ffi.cast('void*', c_val),
-                                   ffi.sizeof('int'))
-        else:
-            raise ZMQError("Invalid option value")
+            length = len(value)
+        low_level_data = initialize_opt_pointer(option, value, length)
+        low_level_value_pointer = low_level_data[0]
+        low_level_sizet = low_level_data[1]
+        ret = C.zmq_setsockopt(self.zmq_socket,
+                                option,
+                                ffi.cast('void*', low_level_value_pointer),
+                                low_level_sizet)
+        return ret
+
+    def getsockopt(self, option, length=0):
+        low_level_data = new_pointer_from_opt(option, length=length)
+        low_level_value_pointer = low_level_data[0]
+        low_level_sizet_pointer = low_level_data[1]
+
+        ret = C.zmq_getsockopt(self.zmq_socket,
+                               option,
+                               low_level_value_pointer,
+                               low_level_sizet_pointer)
+
+        if ret < 0:
+            self.last_errno = C.zmq_errno()
+            return -1
+
+        return value_from_opt_pointer(option, low_level_value_pointer)
 
     def send(self, message, flags=0, copy=False):
         zmq_msg = ffi.new('zmq_msg_t*')

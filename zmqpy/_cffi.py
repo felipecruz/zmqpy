@@ -72,3 +72,23 @@ C = ffi.verify('''
     #include <string.h>
     #include <zmq.h>
 ''', libraries=['c', 'zmq'])
+
+nsp = new_sizet_pointer = lambda length: ffi.new('size_t*', length)
+
+new_uint64_pointer = lambda: (ffi.new('uint64_t*'),
+                              nsp(ffi.sizeof('uint64_t')))
+new_int64_pointer = lambda: (ffi.new('int64_t*'),
+                             nsp(ffi.sizeof('int64_t')))
+new_int_pointer = lambda: (ffi.new('int*'),
+                           nsp(ffi.sizeof('int')))
+new_binary_data = lambda length: (ffi.new('char[%d]' % (length)),
+                                  nsp(ffi.sizeof('char') * length))
+
+value_uint64_pointer = lambda val : (ffi.new('uint64_t*', val),
+                                     ffi.sizeof('uint64_t'))
+value_int64_pointer = lambda val: (ffi.new('int64_t*', val),
+                                   ffi.sizeof('int64_t'))
+value_int_pointer = lambda val: (ffi.new('int*', val),
+                                 ffi.sizeof('int'))
+value_binary_data = lambda val, length: (ffi.new('char[%d]' % (length), val),
+                                         ffi.sizeof('char') * length)
