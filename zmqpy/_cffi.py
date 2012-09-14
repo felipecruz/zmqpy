@@ -2,7 +2,7 @@
 
 from cffi import FFI
 
-from error import *
+from .error import *
 
 ffi = FFI()
 

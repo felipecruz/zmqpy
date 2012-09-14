@@ -4,18 +4,18 @@
 #from ctypes import *
 #from _ctypes import *
 
-from _cffi import C, ffi, new_uint64_pointer, \
-                          new_int64_pointer, \
-                          new_int_pointer, \
-                          new_binary_data, \
-                          value_uint64_pointer, \
-                          value_int64_pointer, \
-                          value_int_pointer, \
-                          value_binary_data
+from ._cffi import C, ffi, new_uint64_pointer, \
+                           new_int64_pointer, \
+                           new_int_pointer, \
+                           new_binary_data, \
+                           value_uint64_pointer, \
+                           value_int64_pointer, \
+                           value_int_pointer, \
+                           value_binary_data
 
-from constants import *
-from error import *
-from utils import jsonapi
+from .constants import *
+from .error import *
+from .utils import jsonapi
 
 class Context(object):
     _state = {}

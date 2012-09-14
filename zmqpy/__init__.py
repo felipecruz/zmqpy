@@ -1,5 +1,5 @@
-from zmqpy import *
-from constants import *
-from error import *
+from .zmqpy import *
+from .constants import *
+from .error import *
 
-__all__ = ['zmqpy', 'constants', 'error'] 
+__all__ = ['zmqpy', 'constants', 'error']

@@ -3,8 +3,8 @@
 from ctypes import *
 from ctypes.util import find_library
 
-from constants import *
-from error import *
+from .constants import *
+from .error import *
 
 czmq = CDLL(find_library("czmq"), use_errno=True)
 

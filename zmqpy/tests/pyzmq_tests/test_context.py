@@ -26,8 +26,7 @@ import zmqpy
 import time
 
 from zmqpy.utils.strtypes import asbytes
-from __init__ import BaseZMQTestCase
-
+from .__init__ import BaseZMQTestCase
 
 #-----------------------------------------------------------------------------
 # Tests

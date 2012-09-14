@@ -21,38 +21,47 @@
 # Imports
 #-----------------------------------------------------------------------------
 
-import time
 import unittest
 
-import zmqpy
+import zmqpy as zmq
 from zmqpy.utils.strtypes import asbytes
-from __init__ import BaseZMQTestCase
+
+from .__init__ import BaseZMQTestCase
+
+#from zmqpy.tests import BaseZMQTestCase
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
-class TestPubSub(BaseZMQTestCase):
-    # We are disabling this test while an issue is being resolved.
+x = asbytes(' ')
+class TestPair(BaseZMQTestCase):
+
     def test_basic(self):
-        s1, s2 = self.create_bound_pair(zmqpy.PUSH, zmqpy.PULL)
-        msg1 = asbytes('message')
-        s1.send(msg1)
-        time.sleep(0.1)
-        msg2 = s2.recv()  # This is blocking!
+        s1, s2 = self.create_bound_pair(zmq.PAIR, zmq.PAIR)
+
+        msg1 = asbytes('message1')
+        msg2 = self.ping_pong(s1, s2, msg1)
         self.assertEquals(msg1, msg2)
 
-    def test_topic(self):
-        s1, s2 = self.create_bound_pair(zmqpy.PUB, zmqpy.SUB)
-        s2.setsockopt(zmqpy.SUBSCRIBE, asbytes('x'))
-        time.sleep(0.1)
-        msg1 = asbytes('message')
-        s1.send(msg1)
-        self.assertRaisesErrno(zmqpy.EAGAIN, s2.recv, zmqpy.NOBLOCK)
-        msg1 = asbytes('xmessage')
-        s1.send(msg1)
-        msg2 = s2.recv()
-        self.assertEquals(msg1, msg2)
+    def test_multiple(self):
+        s1, s2 = self.create_bound_pair(zmq.PAIR, zmq.PAIR)
+
+        for i in xrange(1, 10):
+            msg = i*x
+            s1.send(msg)
+
+        for i in range(1, 10):
+            msg = i*x
+            s2.send(msg)
+
+        for i in xrange(1, 10):
+            msg = s1.recv()
+            self.assertEquals(msg, i*x)
+
+        for i in xrange(1, 10):
+            msg = s2.recv()
+            self.assertEquals(msg, i*x)
 
 if __name__ == "__main__":
     unittest.main()
