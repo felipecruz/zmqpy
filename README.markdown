@@ -33,7 +33,11 @@ context.term()
 Benchmarks
 ----------
 
-PyPy(Trunk) with Cffi
+This (naive) benchmark compares PyPy + zmqpy Vs Cpython + PyZMQ
+
+It sends *10000000* 10 bytes message == "aaaaaaaaaa".
+
+PyPy(*Trunk*) with Cffi
 
 ```sh
 (pypy19)felipecruz:benchmarks/ (master*) $ time python sender.py
