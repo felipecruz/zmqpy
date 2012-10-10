@@ -22,13 +22,16 @@ int
     //printf("%d bind\n", zmq_bind(sender, "ipc:///tmp/zmqpy_bench"));
 
     for (i = 0; i < 10000000; i++) {
-        //if (i % 10000 == 0)
-        //    printf("%d\n", i);
+        if (i % 10000 == 0)
+            printf("%d\n", i);
+
+#if (ZMQ_VERSION_MAJOR == 3)
+        zmq_send(sender, msg, 10, 0);
+#else
         zmq_msg_init_data(&m, msg, 10, NULL, 0);
         zmq_send(sender, &m, 0);
         zmq_msg_close(&m);
-
-        //zmq_send(sender, msg, 10, 0);
+#endif
     }
 
     zmq_close(sender);
