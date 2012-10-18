@@ -212,9 +212,11 @@ def make_zmq_pollitem(socket, flags):
     return zmq_pollitem[0]
 
 def _poll(zmq_pollitem_list, poller, timeout=-1):
+    if zmq_version == 2:
+        timeout = timeout * 1000
     items = ffi.new('zmq_pollitem_t[]', zmq_pollitem_list)
     list_length = ffi.cast('int', len(zmq_pollitem_list))
-    c_timeout = ffi.cast('long', timeout * 1000)
+    c_timeout = ffi.cast('long', timeout)
     C.zmq_poll(items, list_length, c_timeout)
     result = []
     for index in range(len(items)):
