@@ -1,5 +1,12 @@
 import pytest
 
+def test_zmq_get_version():
+    from zmqpy._cffi import get_version
+
+    version = get_version()
+
+    assert version[0] in (2, 3)
+
 def test_zmq_init():
     from zmqpy._cffi import C
 

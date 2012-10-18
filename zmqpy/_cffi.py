@@ -105,15 +105,28 @@ extra_functions = \
 char* strncpy(char* dest, char* orig, size_t len);
 '''
 
-zmq_version = 3
+def get_version():
+    ffi_check = FFI()
+    ffi_check.cdef('void zmq_version(int *major, int *minor, int *patch);')
+    C_check_version = ffi_check.verify('#include <zmq.h>',
+                                            libraries=['c', 'zmq'])
+    major = ffi.new('int*')
+    minor = ffi.new('int*')
+    patch = ffi.new('int*')
 
-if zmq_version == 2:
+    C_check_version.zmq_version(major, minor, patch)
+
+    return (int(major[0]), int(minor[0]), int(patch[0]))
+
+zmq_version = get_version()[0]
+
+if get_version()[0] == 2:
     functions = ''.join([core_functions,
                          message_functions,
                          sockopt_functions,
                          polling_functions,
                          extra_functions])
-elif zmq_version == 3:
+elif get_version()[0] == 3:
     functions = ''.join([core_functions,
                          core32_functions,
                          message32_functions,
