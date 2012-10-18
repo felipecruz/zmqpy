@@ -1,13 +1,14 @@
-zmqpy - (cffi) zeromq python bindings
+zmqpy - alternate (cffi) zeromq python bindings
 =====================================
 
-**This code is a work in progress**
+zmqpy is already compatible with zeromq 2.2.x and 3.2.1.
 
 The goal of this project is to provide a CPython/PyPy compatible ZeroMQ bindings
 for the Python language.
 
 It uses cffi (http://cffi.readthedocs.org) as integration mechanism with the
-original code.
+original libzmq code.
+
 
 API Example
 -----------
