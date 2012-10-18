@@ -6,15 +6,8 @@ from .error import *
 
 ffi = FFI()
 
-ffi.cdef('''
-
-typedef struct {
-    void *content;
-    unsigned char flags;
-    unsigned char vsm_size;
-    unsigned char vsm_data [30];
-} zmq_msg_t;
-
+core_functions = \
+'''
 void* zmq_init(int);
 int zmq_term(void *context);
 
@@ -24,20 +17,23 @@ int zmq_close(void *socket);
 int zmq_bind(void *socket, const char *endpoint);
 int zmq_connect(void *socket, const char *endpoint);
 
-int zmq_send(void *socket, zmq_msg_t *msg, int flags);
-int zmq_recv(void *socket, zmq_msg_t *msg, int flags);
-
 int zmq_errno(void);
+'''
 
-int zmq_getsockopt(void *socket,
-                   int option_name,
-                   void *option_value,
-                   size_t *option_len);
+core32_functions = \
+'''
+int zmq_unbind(void *socket, const char *endpoint);
+int zmq_disconnect(void *socket, const char *endpoint);
+'''
 
-int zmq_setsockopt(void *socket,
-                   int option_name,
-                   const void *option_value,
-                   size_t option_len);
+message_functions = \
+'''
+typedef struct {
+    void *content;
+    unsigned char flags;
+    unsigned char vsm_size;
+    unsigned char vsm_data [30];
+} zmq_msg_t;
 
 typedef ... zmq_free_fn;
 
@@ -53,7 +49,46 @@ size_t zmq_msg_size(zmq_msg_t *msg);
 void *zmq_msg_data(zmq_msg_t *msg);
 int zmq_msg_close(zmq_msg_t *msg);
 
+int zmq_send(void *socket, zmq_msg_t *msg, int flags);
+int zmq_recv(void *socket, zmq_msg_t *msg, int flags);
+'''
 
+message32_functions = \
+'''
+typedef struct {unsigned char _ [32];} zmq_msg_t;
+typedef ... zmq_free_fn;
+
+int zmq_msg_init(zmq_msg_t *msg);
+int zmq_msg_init_size(zmq_msg_t *msg, size_t size);
+int zmq_msg_init_data(zmq_msg_t *msg,
+                      void *data,
+                      size_t size,
+                      zmq_free_fn *ffn,
+                      void *hint);
+
+size_t zmq_msg_size(zmq_msg_t *msg);
+void *zmq_msg_data(zmq_msg_t *msg);
+int zmq_msg_close(zmq_msg_t *msg);
+
+int zmq_sendmsg(void *socket, zmq_msg_t *msg, int flags);
+int zmq_recvmsg(void *socket, zmq_msg_t *msg, int flags);
+'''
+
+sockopt_functions = \
+'''
+int zmq_getsockopt(void *socket,
+                   int option_name,
+                   void *option_value,
+                   size_t *option_len);
+
+int zmq_setsockopt(void *socket,
+                   int option_name,
+                   const void *option_value,
+                   size_t option_len);
+'''
+
+polling_functions = \
+'''
 typedef struct
 {
     void *socket;
@@ -63,10 +98,32 @@ typedef struct
 } zmq_pollitem_t;
 
 int zmq_poll(zmq_pollitem_t *items, int nitems, long timeout);
+'''
 
+extra_functions = \
+'''
 char* strncpy(char* dest, char* orig, size_t len);
+'''
 
-''')
+zmq_version = 3
+
+if zmq_version == 2:
+    functions = ''.join([core_functions,
+                         message_functions,
+                         sockopt_functions,
+                         polling_functions,
+                         extra_functions])
+elif zmq_version == 3:
+    functions = ''.join([core_functions,
+                         core32_functions,
+                         message32_functions,
+                         sockopt_functions,
+                         polling_functions,
+                         extra_functions])
+else:
+    raise Exception("Bad ZMQ Install")
+
+ffi.cdef(functions)
 
 C = ffi.verify('''
     #include <string.h>

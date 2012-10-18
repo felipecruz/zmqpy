@@ -111,6 +111,7 @@ class TestSocket(unittest.TestCase):
 
     def test_socket_connected_send(self):
         from zmqpy import Context, PAIR
+        from zmqpy._cffi import zmq_version
         c = Context()
         sender = c.socket(PAIR)
         receiver = c.socket(PAIR)
@@ -118,9 +119,14 @@ class TestSocket(unittest.TestCase):
         bind = receiver.bind('tcp://*:3333')
         connect = sender.connect('tcp://127.0.0.1:333')
 
-        ret = sender.send("zmqpy test message")
+        message = "zmqpy test message"
+        ret = sender.send(message)
 
-        assert ret == 0
+        if zmq_version == 2:
+            assert ret == 0
+        else:
+            assert ret == len(message)
+
         assert sender.last_errno == None
 
         sender.close()
@@ -128,6 +134,8 @@ class TestSocket(unittest.TestCase):
 
     def test_socket_connected_recv(self):
         from zmqpy import Context, PAIR
+        from zmqpy._cffi import zmq_version
+
         c = Context()
         sender = c.socket(PAIR)
         receiver = c.socket(PAIR)
@@ -139,8 +147,11 @@ class TestSocket(unittest.TestCase):
         assert connect == 0
 
         ret = sender.send("zmqpy test message")
+        if zmq_version == 2:
+            assert ret == 0
+        else:
+            assert ret == 18
 
-        assert ret == 0
         assert sender.last_errno == None
 
         import time
@@ -154,7 +165,13 @@ class TestSocket(unittest.TestCase):
         receiver.close()
 
     def test_socket_setsockopt_uint64(self):
-        from zmqpy import Context, PAIR, ZMQ_HWM
+        from zmqpy._cffi import zmq_version
+        if zmq_version == 2:
+            from zmqpy import Context, PAIR, ZMQ_HWM
+        else:
+            from zmqpy import Context, PAIR, ZMQ_RCVHWM
+            ZMQ_HWM = ZMQ_RCVHWM
+
         c = Context()
         sender = c.socket(PAIR)
 
@@ -163,7 +180,13 @@ class TestSocket(unittest.TestCase):
         sender.close()
 
     def test_socket_getsockopt_uint64(self):
-        from zmqpy import Context, PAIR, ZMQ_HWM
+        from zmqpy._cffi import zmq_version
+        if zmq_version == 2:
+            from zmqpy import Context, PAIR, ZMQ_HWM
+        else:
+            from zmqpy import Context, PAIR, ZMQ_RCVHWM
+            ZMQ_HWM = ZMQ_RCVHWM
+
         c = Context()
         sender = c.socket(PAIR)
 

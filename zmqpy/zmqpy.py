@@ -1,17 +1,13 @@
 # coding: utf-8
 
-#import cPickle as pickle
-#from ctypes import *
-#from _ctypes import *
-
-from ._cffi import C, ffi, new_uint64_pointer, \
-                           new_int64_pointer, \
-                           new_int_pointer, \
-                           new_binary_data, \
-                           value_uint64_pointer, \
-                           value_int64_pointer, \
-                           value_int_pointer, \
-                           value_binary_data
+from ._cffi import C, ffi, zmq_version, new_uint64_pointer, \
+                                        new_int64_pointer, \
+                                        new_int_pointer, \
+                                        new_binary_data, \
+                                        value_uint64_pointer, \
+                                        value_int64_pointer, \
+                                        value_int_pointer, \
+                                        value_binary_data
 
 from .constants import *
 from .error import *
@@ -176,7 +172,11 @@ class Socket(object):
         C.zmq_msg_init_size(zmq_msg, len(message))
         C.strncpy(C.zmq_msg_data(zmq_msg), c_message, len(message))
 
-        ret = C.zmq_send(self.zmq_socket, zmq_msg, flags)
+        if zmq_version == 2:
+            ret = C.zmq_send(self.zmq_socket, zmq_msg, flags)
+        else:
+            ret = C.zmq_sendmsg(self. zmq_socket, zmq_msg, flags)
+
         C.zmq_msg_close(zmq_msg)
         if ret < 0:
             self.last_errno = C.zmq_errno()
@@ -187,7 +187,11 @@ class Socket(object):
         zmq_msg = ffi.new('zmq_msg_t*')
         C.zmq_msg_init(zmq_msg)
 
-        ret = C.zmq_recv(self.zmq_socket, zmq_msg, flags)
+        if zmq_version == 2:
+            ret = C.zmq_recv(self.zmq_socket, zmq_msg, flags)
+        else:
+            ret = C.zmq_recvmsg(self.zmq_socket, zmq_msg, flags)
+
         if ret < 0:
             C.zmq_msg_close(zmq_msg)
             raise zmqpy.ZMQError(_errno=C.zmq_errno())
