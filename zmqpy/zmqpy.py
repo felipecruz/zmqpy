@@ -170,7 +170,7 @@ class Socket(object):
 
         c_message = ffi.new('char[]', message)
         C.zmq_msg_init_size(zmq_msg, len(message))
-        C.strncpy(C.zmq_msg_data(zmq_msg), c_message, len(message))
+        C.memcpy(C.zmq_msg_data(zmq_msg), c_message, len(message))
 
         if zmq_version == 2:
             ret = C.zmq_send(self.zmq_socket, zmq_msg, flags)

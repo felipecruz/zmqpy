@@ -102,7 +102,7 @@ int zmq_poll(zmq_pollitem_t *items, int nitems, long timeout);
 
 extra_functions = \
 '''
-char* strncpy(char* dest, char* orig, size_t len);
+void* memcpy(void *restrict s1, const void *restrict s2, size_t n);
 '''
 
 def get_version():
