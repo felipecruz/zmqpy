@@ -139,6 +139,7 @@ else:
 ffi.cdef(functions)
 
 C = ffi.verify('''
+    #include <stddef.h>
     #include <string.h>
     #include <zmq.h>
 ''', libraries=['c', 'zmq'])
