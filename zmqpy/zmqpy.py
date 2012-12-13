@@ -233,7 +233,7 @@ def _cffi_poll(zmq_pollitem_list, poller, timeout=-1):
                 result.append((poller._sockets[items[index].socket],
                             items[index].revents))
             else:
-                result.append(items[index].fd, items[index].revents)
+                result.append((items[index].fd, items[index].revents))
     return result
 
 def _poll(sockets, timeout):
