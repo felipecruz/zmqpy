@@ -4,3 +4,4 @@ py==1.4.12
 pycparser==2.07
 pytest
 pytest-cov
+ctypes_configure
