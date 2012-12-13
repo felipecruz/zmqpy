@@ -11,6 +11,21 @@ for the Python language.
 It uses cffi (http://cffi.readthedocs.org) as integration mechanism with the
 original libzmq code.
 
+Install
+-------
+
+From PyPi
+
+```sh
+pip install zmqpy
+```
+
+Install from source
+
+```sh
+git clone https://github.com/felipecruz/zmqpy.giy
+python setup.py install
+```
 
 API Example
 -----------
