@@ -165,7 +165,7 @@ class Socket(object):
 
         return value_from_opt_pointer(option, low_level_value_pointer)
 
-    def send(self, message, flags=0, copy=False):
+    def send(self, message, flags=0, copy=False, track=False):
         zmq_msg = ffi.new('zmq_msg_t*')
 
         c_message = ffi.new('char[]', message)
@@ -183,7 +183,7 @@ class Socket(object):
 
         return ret
 
-    def recv(self, flags=0):
+    def recv(self, flags=0, copy=False, track=False):
         zmq_msg = ffi.new('zmq_msg_t*')
         C.zmq_msg_init(zmq_msg)
 
@@ -201,6 +201,109 @@ class Socket(object):
         C.zmq_msg_close(zmq_msg)
 
         return value
+
+    # Following methods from pyzmq.pysocket
+
+    def bind_to_random_port(self, addr, min_port=49152, max_port=65536, max_tries=100):
+        """s.bind_to_random_port(addr, min_port=49152, max_port=65536, max_tries=100)
+
+        Bind this socket to a random port in a range.
+
+        Parameters
+        ----------
+        addr : str
+            The address string without the port to pass to ``Socket.bind()``.
+        min_port : int, optional
+            The minimum port in the range of ports to try (inclusive).
+        max_port : int, optional
+            The maximum port in the range of ports to try (exclusive).
+        max_tries : int, optional
+            The maximum number of bind attempts to make.
+
+        Returns
+        -------
+        port : int
+            The port the socket was bound to.
+
+        Raises
+        ------
+        ZMQBindError
+            if `max_tries` reached before successful bind
+        """
+        for i in range(max_tries):
+            try:
+                port = random.randrange(min_port, max_port)
+                self.bind('%s:%s' % (addr, port))
+            except ZMQError as exception:
+                if not exception.errno == zmq.EADDRINUSE:
+                    raise
+            else:
+                return port
+        raise ZMQBindError("Could not bind socket to random port.")
+
+    def send_multipart(self, msg_parts, flags=0, copy=True, track=False):
+        """s.send_multipart(msg_parts, flags=0, copy=True, track=False)
+
+        Send a sequence of buffers as a multipart message.
+
+        Parameters
+        ----------
+        msg_parts : iterable
+            A sequence of objects to send as a multipart message. Each element
+            can be any sendable object (Frame, bytes, buffer-providers)
+        flags : int, optional
+            SNDMORE is handled automatically for frames before the last.
+        copy : bool, optional
+            Should the frame(s) be sent in a copying or non-copying manner.
+        track : bool, optional
+            Should the frame(s) be tracked for notification that ZMQ has
+            finished with it (ignored if copy=True).
+
+        Returns
+        -------
+        None : if copy or not track
+        MessageTracker : if track and not copy
+            a MessageTracker object, whose `pending` property will
+            be True until the last send is completed.
+        """
+        for msg in msg_parts[:-1]:
+            self.send(msg, SNDMORE|flags, copy=copy, track=track)
+        # Send the last part without the extra SNDMORE flag.
+        return self.send(msg_parts[-1], flags, copy=copy, track=track)
+
+    def recv_multipart(self, flags=0, copy=True, track=False):
+        """s.recv_multipart(flags=0, copy=True, track=False)
+
+        Receive a multipart message as a list of bytes or Frame objects.
+
+        Parameters
+        ----------
+        flags : int, optional
+            Any supported flag: NOBLOCK. If NOBLOCK is set, this method
+            will raise a ZMQError with EAGAIN if a message is not ready.
+            If NOBLOCK is not set, then this method will block until a
+            message arrives.
+        copy : bool, optional
+            Should the message frame(s) be received in a copying or non-copying manner?
+            If False a Frame object is returned for each part, if True a copy of
+            the bytes is made for each frame.
+        track : bool, optional
+            Should the message frame(s) be tracked for notification that ZMQ has
+            finished with it? (ignored if copy=True)
+        Returns
+        -------
+        msg_parts : list
+            A list of frames in the multipart message; either Frames or bytes,
+            depending on `copy`.
+
+        """
+        parts = [self.recv(flags, copy=copy, track=track)]
+        # have first part already, only loop while more to receive
+        while self.getsockopt(RCVMORE):
+            part = self.recv(flags, copy=copy, track=track)
+            parts.append(part)
+
+        return parts
 
 def _make_zmq_pollitem(socket, flags):
     zmq_socket = socket.zmq_socket

@@ -82,7 +82,7 @@ if zmq_version == 2:
     uint64_opts = [ZMQ_HWM, ZMQ_AFFINITY, ZMQ_SNDBUF, ZMQ_RCVBUF]
 
     int64_opts =  [ZMQ_SWAP, ZMQ_RECOVERY_IVL, ZMQ_RECOVERY_IVL_MSEC,
-                   ZMQ_MCAST_LOOP, ZMQ_RATE]
+                   ZMQ_MCAST_LOOP, ZMQ_RATE, ZMQ_RCVMORE]
 
     binary_opts = [ZMQ_IDENTITY, ZMQ_SUBSCRIBE, ZMQ_UNSUBSCRIBE]
 
