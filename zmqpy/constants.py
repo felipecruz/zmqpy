@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from ._cffi import zmq_version
 
 # Modified by Felipe Cruz
