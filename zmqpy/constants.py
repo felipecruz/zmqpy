@@ -1,101 +1,133 @@
 from ._cffi import zmq_version
-import errno
 
-EAGAIN = errno.EAGAIN
+# Modified by Felipe Cruz
+# Copyright © 2011 Daniel Holth
+#
+# Derived from original pyzmq © 2010 Brian Granger
+#
+# This file is part of pyzmq-ctypes
+#
+# pyzmq-ctypes is free software; you can redistribute it and/or modify it
+# under the terms of the Lesser GNU General Public License as published
+# by the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# pyzmq-ctypes is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the Lesser GNU General Public
+# License for more details.
+#
+# You should have received a copy of the Lesser GNU General Public
+# License along with this program.  If not, see
+# <http://www.gnu.org/licenses/>.
 
-NOBLOCK = 1
+from ctypes import *
+from ctypes.util import find_library
+from ctypes_configure import configure
 
-EINVAL = 1
+class CConfigure(object):
+    _compilation_info_ = configure.ExternalCompilationInfo(includes=['zmq.h'],
+                                                           libraries=['zmq'])
 
-PAIR = 0
-PUB = 1
-SUB = 2
-REQ = 3
-REP = 4
-XREQ = 5
-XREP = 6
-PULL = 7
-PUSH = 8
-XPUB = 9
-XSUB = 10
-ROUTER = 11
-DEALER = 12
-AFFINITY = 4
-IDENTITY = 5
-SUBSCRIBE = 6
-UNSUBSCRIBE = 7
-RATE = 8
-RECOVERY_IVL = 9
-SNDBUF = 11
-RCVBUF = 12
-RCVMORE = 13
-FD = 14
-EVENTS = 15
-TYPE = 16
-LINGER = 17
-RECONNECT_IVL = 18
-BACKLOG = 19
-RECONNECT_IVL_MAX = 21
-MAXMSGSIZE = 22
-SNDHWM = ZMQ_SNDHWM = 23
-RCVHWM = ZMQ_RCVHWM = 24
-MULTICAST_HOPS = 25
-RCVTIMEO = 27
-SNDTIMEO = 28
-RCVLABEL = 29
+errnos =  ['EADDRINUSE', 'EADDRNOTAVAIL', 'EAGAIN', 'ECONNREFUSED', 'EFAULT',
+           'EFSM', 'EINPROGRESS', 'EINVAL', 'EMTHREAD', 'ENETDOWN', 'ENOBUFS',
+           'ENOCOMPATPROTO', 'ENODEV', 'ENOMEM', 'ENOTSUP', 'EPROTONOSUPPORT',
+           'ETERM', 'ENOTSOCK', 'EMSGSIZE', 'EAFNOSUPPORT', 'ENETUNREACH',
+           'ECONNABORTED', 'ECONNRESET', 'ENOTCONN', 'ETIMEDOUT',
+           'EHOSTUNREACH', 'ENETRESET']
 
-DONTWAIT = 1
-SNDMORE = 2
-SNDLABEL = 4
+zmq2_cons = ['ZMQ_MSG_MORE' , 'ZMQ_MSG_SHARED', 'ZMQ_MSG_MASK',
+             'ZMQ_UPSTREAM', 'ZMQ_DOWNSTREAM', 'ZMQ_MCAST_LOOP',
+             'ZMQ_RECOVERY_IVL_MSEC', 'ZMQ_NOBLOCK', 'ZMQ_HWM',
+             'ZMQ_SWAP']
 
-POLLIN = 1
-POLLOUT = 2
-POLLERR = 4
+socket_cons = ['ZMQ_PAIR', 'ZMQ_PUB', 'ZMQ_SUB', 'ZMQ_REQ', 'ZMQ_REP',
+               'ZMQ_DEALER', 'ZMQ_ROUTER', 'ZMQ_PULL', 'ZMQ_PUSH', 'ZMQ_XPUB',
+               'ZMQ_XSUB', 'ZMQ_XREQ', 'ZMQ_XREP']
 
-ZMQ_HWM = 1
-ZMQ_SWAP = 3
-ZMQ_AFFINITY = 4
-ZMQ_IDENTITY = 5
-ZMQ_SUBSCRIBE = 6
-ZMQ_UNSUBSCRIBE = 7
-ZMQ_RATE = 8
-ZMQ_RECOVERY_IVL = 9
-ZMQ_MCAST_LOOP = 10
-ZMQ_SNDBUF = 11
-ZMQ_RCVBUF = 12
-ZMQ_RCVMORE = 13
-ZMQ_FD = 14
-ZMQ_EVENTS = 15
-ZMQ_TYPE = 16
-ZMQ_LINGER = 17
-ZMQ_RECONNECT_IVL = 18
-ZMQ_BACKLOG = 19
-ZMQ_RECOVERY_IVL_MSEC = 20
-ZMQ_RECONNECT_IVL_MAX = 21
-ZMQ_RCVTIMEO = 27
-ZMQ_SNDTIMEO = 28
+zmq_base_cons = ['ZMQ_VERSION', 'ZMQ_AFFINITY', 'ZMQ_IDENTITY', 'ZMQ_SUBSCRIBE',
+                 'ZMQ_UNSUBSCRIBE', 'ZMQ_RATE', 'ZMQ_RECOVERY_IVL',
+                 'ZMQ_SNDBUF', 'ZMQ_RCVBUF', 'ZMQ_RCVMORE', 'ZMQ_FD',
+                 'ZMQ_EVENTS', 'ZMQ_TYPE', 'ZMQ_LINGER', 'ZMQ_RECONNECT_IVL',
+                 'ZMQ_BACKLOG', 'ZMQ_RECONNECT_IVL_MAX', 'ZMQ_RCVTIMEO',
+                 'ZMQ_SNDTIMEO', 'ZMQ_SNDMORE', 'ZMQ_POLLIN', 'ZMQ_POLLOUT',
+                 'ZMQ_POLLERR', 'ZMQ_STREAMER', 'ZMQ_FORWARDER', 'ZMQ_QUEUE']
 
-ZMQ_NOBLOCK = 1
-ZMQ_SNDMORE = 2
+zmq3_cons = ['ZMQ_DONTWAIT', 'ZMQ_MORE', 'ZMQ_MAXMSGSIZE', 'ZMQ_SNDHWM',
+             'ZMQ_RCVHWM', 'ZMQ_MULTICAST_HOPS', 'ZMQ_IPV4ONLY',
+             'ZMQ_LAST_ENDPOINT', 'ZMQ_ROUTER_BEHAVIOR', 'ZMQ_TCP_KEEPALIVE',
+             'ZMQ_TCP_KEEPALIVE_CNT', 'ZMQ_TCP_KEEPALIVE_IDLE',
+             'ZMQ_TCP_KEEPALIVE_INTVL', 'ZMQ_TCP_ACCEPT_FILTER',
+             'ZMQ_EVENT_CONNECTED', 'ZMQ_EVENT_CONNECT_DELAYED',
+             'ZMQ_EVENT_CONNECT_RETRIED', 'ZMQ_EVENT_LISTENING',
+             'ZMQ_EVENT_BIND_FAILED', 'ZMQ_EVENT_ACCEPTED',
+             'ZMQ_EVENT_ACCEPT_FAILED', 'ZMQ_EVENT_CLOSED',
+             'ZMQ_EVENT_CLOSE_FAILED']
+
+names = None
+pynames = []
+
+NOBLOCK = DONTWAIT = 1
+pynames.extend(['NOBLOCK', 'DONTWAIT'])
 
 if zmq_version == 2:
-    uint64_opts = [ZMQ_HWM, ZMQ_AFFINITY, ZMQ_SNDBUF, ZMQ_RCVBUF]
-
-    int64_opts =  [ZMQ_SWAP, ZMQ_RECOVERY_IVL, ZMQ_RECOVERY_IVL_MSEC,
-                   ZMQ_MCAST_LOOP, ZMQ_RATE, ZMQ_RCVMORE]
-
-    binary_opts = [ZMQ_IDENTITY, ZMQ_SUBSCRIBE, ZMQ_UNSUBSCRIBE]
-
-    int_opts =    [ZMQ_RCVTIMEO, ZMQ_SNDTIMEO, ZMQ_LINGER, ZMQ_RECONNECT_IVL,
-                   ZMQ_RECONNECT_IVL_MAX, ZMQ_BACKLOG]
+    names = errnos + socket_cons + zmq_base_cons + zmq2_cons
 else:
-    uint64_opts = [ZMQ_AFFINITY, ZMQ_SNDBUF, ZMQ_RCVBUF]
+    names = errnos + socket_cons + zmq_base_cons + zmq3_cons
 
-    int64_opts =  [ZMQ_SWAP, ZMQ_RECOVERY_IVL, ZMQ_RECOVERY_IVL_MSEC,
-                   ZMQ_MCAST_LOOP]
+for cname in names:
+    pyname = cname.split('_', 1)[-1]
+    pynames.append(pyname)
+    setattr(CConfigure, pyname, configure.ConstantInteger(cname))
 
-    binary_opts = [ZMQ_IDENTITY, ZMQ_SUBSCRIBE, ZMQ_UNSUBSCRIBE]
+_constants = configure.configure(CConfigure)
+globals().update(_constants)
 
-    int_opts =    [ZMQ_RCVHWM, ZMQ_SNDHWM, ZMQ_RCVTIMEO, ZMQ_SNDTIMEO,
-                   ZMQ_LINGER, ZMQ_RECONNECT_IVL, ZMQ_RECONNECT_IVL_MAX,
-                   ZMQ_BACKLOG, ZMQ_RATE]
+uint64_opts = int64_opts = binary_opts = int_opts = []
+
+if zmq_version == 2:
+    uint64_opts = [HWM, AFFINITY, SNDBUF, RCVBUF]
+
+    int64_opts =  [SWAP, RECOVERY_IVL, RECOVERY_IVL_MSEC,
+                   MCAST_LOOP, RATE, RCVMORE]
+
+    binary_opts = [IDENTITY, SUBSCRIBE, UNSUBSCRIBE]
+
+    int_opts =    [RCVTIMEO, SNDTIMEO, LINGER, RECONNECT_IVL,
+                   RECONNECT_IVL_MAX, BACKLOG, FD, EVENTS, TYPE]
+
+    DONTWAIT = NOBLOCK
+else:
+    uint64_opts = [AFFINITY, SNDBUF, RCVBUF]
+
+    int64_opts =  [RECOVERY_IVL]
+
+    binary_opts = [IDENTITY, SUBSCRIBE, UNSUBSCRIBE]
+
+    int_opts =    [RCVHWM, SNDHWM, RCVTIMEO, SNDTIMEO,
+                   LINGER, RECONNECT_IVL, RECONNECT_IVL_MAX,
+                   BACKLOG, RATE, RCVMORE, FD, EVENTS, TYPE]
+
+    NOBLOCK = DONTWAIT
+
+# compatibility with default core constants
+
+int_sockopts = []
+int_sockopts.extend(int_opts)
+
+int64_sockopts = []
+int64_sockopts.extend(int64_opts)
+int64_sockopts.extend(uint64_opts)
+
+bytes_sockopts = []
+bytes_sockopts.extend(binary_opts)
+
+pynames.extend([
+    'binary_opts',
+    'int_opts',
+    'int64_opts',
+    'uint64_opts',
+    'bytes_sockopts',
+])
+
+__all__ = pynames
