@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='zmqpy',
-      version='0.3',
+      version='0.3.1',
       description='Python cffi-based ZeroMQ bindings',
       author='Felipe Cruz',
       author_email='felipecruz@loogica.net',
