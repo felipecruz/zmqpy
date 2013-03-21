@@ -6,6 +6,6 @@ setup(name='zmqpy',
       author='Felipe Cruz',
       author_email='felipecruz@loogica.net',
       url='http://loogica.net/opensource/',
-      install_requires=['cffi>=0.3', 'ctypes_configure'],
+      install_requires=['cffi>=0.3'],
       packages=['zmqpy', 'zmqpy/tests/', 'zmqpy/utils/',
                 'zmqpy/tests/pyzmq_tests/'])
