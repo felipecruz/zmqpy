@@ -55,6 +55,11 @@ int zmq_connect(void *socket, const char *endpoint);
 int zmq_errno(void);
 '''
 
+core22_functions = \
+'''
+int zmq_device(int device, const void *frontend, const void *backend);
+'''
+
 core32_functions = \
 '''
 int zmq_unbind(void *socket, const char *endpoint);
