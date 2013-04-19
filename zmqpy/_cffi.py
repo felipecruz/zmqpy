@@ -57,7 +57,7 @@ int zmq_errno(void);
 
 core22_functions = \
 '''
-int zmq_device(int device, const void *frontend, const void *backend);
+int zmq_device(int device, void *frontend, void *backend);
 '''
 
 core32_functions = \
