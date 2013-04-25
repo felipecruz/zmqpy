@@ -1,11 +1,11 @@
 from setuptools import setup
 
 setup(name='zmqpy',
-      version='0.3.2',
+      version='0.3.3',
       description='Python cffi-based ZeroMQ bindings',
       author='Felipe Cruz',
       author_email='felipecruz@loogica.net',
-      url='http://loogica.net/opensource/',
+      url='https://github.com/felipecruz/zmqpy',
       install_requires=['cffi>=0.3'],
       packages=['zmqpy', 'zmqpy/tests/', 'zmqpy/utils/',
                 'zmqpy/tests/pyzmq_tests/'])
