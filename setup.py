@@ -7,5 +7,5 @@ setup(name='zmqpy',
       author_email='felipecruz@loogica.net',
       url='https://github.com/felipecruz/zmqpy',
       install_requires=['cffi>=0.3'],
-      packages=['zmqpy', 'zmqpy/tests/', 'zmqpy/utils/',
+      packages=['zmqpy', 'zmqpy/tests/', 'zmqpy/utils/', 'zmqpy/eventloop',
                 'zmqpy/tests/pyzmq_tests/'])
