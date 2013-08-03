@@ -23,7 +23,7 @@ pip install zmqpy
 Install from source
 
 ```sh
-git clone https://github.com/felipecruz/zmqpy.giy
+git clone https://github.com/felipecruz/zmqpy.git
 python setup.py install
 ```
 
