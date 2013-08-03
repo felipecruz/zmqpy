@@ -48,6 +48,15 @@ context.term()
 
 ```
 
+Troubleshooting - Custom prefix zeromq installation
+---------------------------------------------------
+
+If you installed zeromq with a custom prefix you may run into some errors.
+
+If you find any errors regarding not found `libzmq.so` or `zmq.h` you may have to export 2 environment variables: `C_INCLUDE_PATH` and `LD_LIBRARY_PATH`. It's very important
+to `export` them so they'll be also available for subprocesses. Usually you export `C_INCLUDE_PATH` to your custom installation header directory and `LD_LIBRARY_PATH` 
+to the `libzmq.so` installed directory.
+
 Benchmarks
 ----------
 
