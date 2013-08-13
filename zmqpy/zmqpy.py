@@ -12,6 +12,7 @@ from ._cffi import C, ffi, zmq_version, new_uint64_pointer, \
 from .constants import *
 from .error import *
 from .utils import jsonapi
+from .utils.strtypes import bytes, unicode
 
 class Context(object):
     _state = {}
@@ -149,6 +150,13 @@ class Socket(object):
                                 low_level_sizet)
         return ret
 
+    def setsockopt_string(self, option, value, encoding='utf-8'):
+        if not isinstance(value, unicode):
+            raise TypeError("unicode strings only")
+        return self.setsockopt(option, value.encode(encoding))
+
+    setsockopt_unicode = setsockopt_string
+
     def getsockopt(self, option, length=0):
         low_level_data = new_pointer_from_opt(option, length=length)
         low_level_value_pointer = low_level_data[0]
@@ -183,6 +191,13 @@ class Socket(object):
 
         return ret
 
+    def send_json(self, obj, flags=0, copy=False, track=False):
+        if jsonapi.jsonmod is None:
+            raise ImportError('jsonlib{1,2}, json or simplejson library is required.')
+        else:
+            msg = jsonapi.dumps(obj)
+            return self.send(msg, flags, copy, track)
+
     def recv(self, flags=0, copy=False, track=False):
         zmq_msg = ffi.new('zmq_msg_t*')
         C.zmq_msg_init(zmq_msg)
@@ -201,6 +216,13 @@ class Socket(object):
         C.zmq_msg_close(zmq_msg)
 
         return value
+
+    def recv_json(self, flags=0, copy=False, track=False):
+        if jsonapi.jsonmod is None:
+            raise ImportError('jsonlib{1,2}, json or simplejson library is required.')
+        else:
+            msg = self.recv(flags, copy, track)
+            return jsonapi.loads(msg)
 
     # Following methods from pyzmq.pysocket
 
@@ -304,6 +326,45 @@ class Socket(object):
             parts.append(part)
 
         return parts
+
+    def send_string(self, u, flags=0, copy=False, track=False, encoding='utf-8'):
+        """send a Python unicode string as a message with an encoding
+        0MQ communicates with raw bytes, so you must encode/decode
+        text (unicode on py2, str on py3) around 0MQ.
+
+        Parameters
+        ----------
+        u : Python unicode string (unicode on py2, str on py3)
+        The unicode string to send.
+        flags : int, optional
+        Any valid send flag.
+        encoding : str [default: 'utf-8']
+        The encoding to be used
+        """
+        if not isinstance(u, basestring):
+            raise TypeError("unicode/str objects only")
+        return self.send(u.encode(encoding), flags=flags, copy=copy, track=track)
+    
+    send_unicode = send_string
+
+    def recv_string(self, flags=0, track=False, encoding='utf-8'):
+        """receive a unicode string, as sent by send_string
+        Parameters
+        ----------
+        flags : int
+        Any valid recv flag.
+        encoding : str [default: 'utf-8']
+        The encoding to be used
+
+        Returns
+        -------
+        s : unicode string (unicode on py2, str on py3)
+        The Python unicode string that arrives as encoded bytes.
+        """
+        msg = self.recv(flags=flags, copy=False, track=track)
+        return codecs.decode(msg.bytes, encoding)
+    
+    recv_unicode = recv_string
 
 def _make_zmq_pollitem(socket, flags):
     zmq_socket = socket.zmq_socket
