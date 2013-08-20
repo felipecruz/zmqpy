@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import random
+
 from ._cffi import C, ffi, zmq_version, new_uint64_pointer, \
                                         new_int64_pointer, \
                                         new_int_pointer, \
