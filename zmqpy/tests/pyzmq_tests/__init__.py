@@ -69,8 +69,8 @@ class BaseZMQTestCase(TestCase):
         try:
             func(*args, **kwargs)
         except zmq.ZMQError as e:
-            self.assertEqual(e._errno, errno, "wrong error raised, \ expected '%s' \
-got '%s'" % (zmq.ZMQError(errno), zmq.ZMQError(e._errno)))
+            self.assertEqual(e.errno, errno, "wrong error raised, \ expected '%s' \
+got '%s'" % (zmq.ZMQError(errno), zmq.ZMQError(e.errno)))
         else:
             self.fail("Function did not raise any error")
 
