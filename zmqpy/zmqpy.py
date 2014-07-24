@@ -16,6 +16,8 @@ from .error import *
 from .utils import jsonapi
 from .utils.strtypes import bytes, unicode
 
+__all__ = ['Context', 'select', 'Socket', 'zmq_version', 'Poller']
+
 class Context(object):
     _state = {}
     def __init__(self, iothreads=1):
@@ -211,7 +213,7 @@ class Socket(object):
 
         if ret < 0:
             C.zmq_msg_close(zmq_msg)
-            raise zmqpy.ZMQError(_errno=C.zmq_errno())
+            raise ZMQError(errno=C.zmq_errno())
 
         value = ffi.buffer(C.zmq_msg_data(zmq_msg), int(C.zmq_msg_size(zmq_msg)))[:]
 
