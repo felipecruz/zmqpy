@@ -1,6 +1,6 @@
 cffi==0.5
 ply==3.4
-py==1.4.12
+py==1.10.0
 pycparser==2.07
 pytest
 pytest-cov
